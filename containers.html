@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Container Groups — SoverGrid</title>
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root { --sidebar-width: 236px; }
+    .sidebar.collapsed .sidebar-user-info { display:none; }
+    .sidebar.collapsed .sidebar-user { justify-content:center; padding:10px 0; }
+  </style>
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-top">
+      <div class="sidebar-logo-wrap">
+        <div class="sidebar-logo-icon" id="logo-icon">
+          <svg viewBox="0 0 30 30" fill="none" width="26" height="26">
+            <circle cx="15" cy="4"  r="3.5" fill="#7C3AED"/>
+            <circle cx="4"  cy="25" r="2.8" fill="#111"/>
+            <circle cx="26" cy="25" r="2.8" fill="#111"/>
+            <circle cx="15" cy="16" r="2.8" fill="#111"/>
+            <line x1="15" y1="4"  x2="4"  y2="25" stroke="#7C3AED" stroke-width="1.3" opacity="0.7"/>
+            <line x1="15" y1="4"  x2="26" y2="25" stroke="#7C3AED" stroke-width="1.3" opacity="0.7"/>
+            <line x1="4"  y1="25" x2="26" y2="25" stroke="#888" stroke-width="1.3"/>
+            <line x1="15" y1="4"  x2="15" y2="16" stroke="#7C3AED" stroke-width="1.3"/>
+            <line x1="4"  y1="25" x2="15" y2="16" stroke="#888" stroke-width="1.3"/>
+            <line x1="26" y1="25" x2="15" y2="16" stroke="#888" stroke-width="1.3"/>
+          </svg>
+        </div>
+        <span class="sidebar-logo-text">sovergrid</span>
+      </div>
+      <button class="sidebar-toggle" id="sidebar-toggle-btn" onclick="toggleSidebar()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+    </div>
+    <nav class="sidebar-nav" id="sidebar-nav"></nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="sidebar-avatar">JO</div>
+        <div class="sidebar-user-info">
+          <div class="sidebar-user-name">Joel Oyewole</div>
+          <div class="sidebar-user-plan" id="mode-label" style="color:#7C3AED;font-weight:600;"></div>
+        </div>
+      </div>
+    </div>
+  </aside>
+  <div class="main">
+    <div class="page-header">
+      <span class="page-title">Container Groups</span>
+      <div style="display:flex;gap:10px;">
+        <a href="developer.html" class="btn btn-ghost btn-sm">← Console</a>
+      </div>
+    </div>
+    <div class="content">
+      
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Active Container Groups</span>
+          <a href="new-deployment.html"><button class="btn btn-primary btn-sm">New group</button></a>
+        </div>
+        <div class="card-body" style="padding:0;">
+          <table style="width:100%;border-collapse:collapse;font-size:13px;">
+            <thead><tr>
+              <th style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:#AAAAAA;text-align:left;padding:8px 16px;border-bottom:2px solid #EBEBEB;">Group</th>
+              <th style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:#AAAAAA;text-align:left;padding:8px 16px;border-bottom:2px solid #EBEBEB;">Provider</th>
+              <th style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:#AAAAAA;text-align:left;padding:8px 16px;border-bottom:2px solid #EBEBEB;">Containers</th>
+              <th style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:#AAAAAA;text-align:left;padding:8px 16px;border-bottom:2px solid #EBEBEB;">CPU</th>
+              <th style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:#AAAAAA;text-align:left;padding:8px 16px;border-bottom:2px solid #EBEBEB;">Memory</th>
+              <th style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:#AAAAAA;text-align:left;padding:8px 16px;border-bottom:2px solid #EBEBEB;">Status</th>
+            </tr></thead>
+            <tbody>
+              <tr><td style="padding:11px 16px;border-bottom:1px solid #EBEBEB;font-weight:600;">invoice-sentinel-api</td><td style="padding:11px 16px;border-bottom:1px solid #EBEBEB;color:#6B6B6B;">Akash</td><td style="padding:11px 16px;border-bottom:1px solid #EBEBEB;">3/3</td><td style="padding:11px 16px;border-bottom:1px solid #EBEBEB;">1 vCPU ×3</td><td style="padding:11px 16px;border-bottom:1px solid #EBEBEB;">512 MB ×3</td><td style="padding:11px 16px;border-bottom:1px solid #EBEBEB;"><span style="background:#F0FDF4;color:#15803D;border-radius:4px;padding:2px 8px;font-size:12px;font-weight:600;">Live</span></td></tr>
+              <tr><td style="padding:11px 16px;border-bottom:1px solid #EBEBEB;font-weight:600;">sovergrid-landing</td><td style="padding:11px 16px;border-bottom:1px solid #EBEBEB;color:#6B6B6B;">Spheron</td><td style="padding:11px 16px;border-bottom:1px solid #EBEBEB;">2/3</td><td style="padding:11px 16px;border-bottom:1px solid #EBEBEB;">0.5 vCPU ×3</td><td style="padding:11px 16px;border-bottom:1px solid #EBEBEB;">256 MB ×3</td><td style="padding:11px 16px;border-bottom:1px solid #EBEBEB;"><span style="background:#FFFBEB;color:#92400E;border-radius:4px;padding:2px 8px;font-size:12px;font-weight:600;">Degraded</span></td></tr>
+              <tr><td style="padding:11px 16px;font-weight:600;">nexus-arch-demo</td><td style="padding:11px 16px;color:#6B6B6B;">Akash</td><td style="padding:11px 16px;">0/1</td><td style="padding:11px 16px;">1 vCPU</td><td style="padding:11px 16px;">512 MB</td><td style="padding:11px 16px;"><span style="background:#FEF2F2;color:#B91C1C;border-radius:4px;padding:2px 8px;font-size:12px;font-weight:600;">Stopped</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="toast-container" id="toasts"></div>
+<script>
+function showToast(msg) {
+  const t = document.createElement('div');
+  t.className = 'toast'; t.textContent = msg;
+  document.getElementById('toasts').appendChild(t);
+  setTimeout(() => t.remove(), 3200);
+}
+</script>
+<script>window.SG_ACTIVE_PAGE = 'containers';</script>
+<script src="sg-nav.js"></script>
+</body>
+</html>

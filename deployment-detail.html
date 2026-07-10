@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>invoice-sentinel-api — SoverGrid</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .sidebar.collapsed .sidebar-user-info { display:none; }
+    .sidebar.collapsed .sidebar-user { justify-content:center; padding:10px 0; }
+    .page-title { font-size: 18px; }
+    .log-err { color: #EF4444; }
+  </style>
+</head>
+<body>
+<div class="layout">
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-top">
+      <div class="sidebar-logo-wrap">
+        <div class="sidebar-logo-icon">
+          <svg viewBox="0 0 30 30" fill="none" width="26" height="26">
+            <circle cx="15" cy="4"  r="3.5" fill="#7C3AED"/>
+            <circle cx="4"  cy="25" r="2.8" fill="#111"/>
+            <circle cx="26" cy="25" r="2.8" fill="#111"/>
+            <circle cx="15" cy="16" r="2.8" fill="#111"/>
+            <line x1="15" y1="4"  x2="4"  y2="25" stroke="#7C3AED" stroke-width="1.3" opacity="0.7"/>
+            <line x1="15" y1="4"  x2="26" y2="25" stroke="#7C3AED" stroke-width="1.3" opacity="0.7"/>
+            <line x1="4"  y1="25" x2="26" y2="25" stroke="#888" stroke-width="1.3"/>
+            <line x1="15" y1="4"  x2="15" y2="16" stroke="#7C3AED" stroke-width="1.3"/>
+            <line x1="4"  y1="25" x2="15" y2="16" stroke="#888" stroke-width="1.3"/>
+            <line x1="26" y1="25" x2="15" y2="16" stroke="#888" stroke-width="1.3"/>
+          </svg>
+        </div>
+        <span class="sidebar-logo-text">sovergrid</span>
+      </div>
+      <button class="sidebar-toggle" id="sidebar-toggle-btn" onclick="toggleSidebar()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+    </div>
+    <nav class="sidebar-nav" id="sidebar-nav"></nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="sidebar-avatar">JO</div>
+        <div class="sidebar-user-info">
+          <div class="sidebar-user-name">Joel Oyewole</div>
+          <div class="sidebar-user-plan" id="mode-label"></div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <div class="main">
+    <div class="page-header">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <a href="deployments.html" class="btn btn-ghost btn-sm" style="padding:6px 8px;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        </a>
+        <span class="page-title">invoice-sentinel-api</span>
+        <span class="status-badge healthy"><span class="status-dot green"></span>Healthy</span>
+      </div>
+      <div style="display:flex;gap:10px;">
+        <button class="btn btn-secondary btn-sm" onclick="showToast('Restarting container...')">Restart</button>
+        <button class="btn btn-danger btn-sm" onclick="document.getElementById('terminateModal').classList.add('open')">Terminate</button>
+      </div>
+    </div>
+
+    <div class="content">
+      <div class="detail-grid">
+
+        <!-- Left column -->
+        <div>
+          <!-- Live URL -->
+          <div class="card" style="margin-bottom:16px;">
+            <div class="card-header">
+              <span class="card-title">Live URL</span>
+              <span class="badge badge-green">Active</span>
+            </div>
+            <div class="card-body">
+              <div style="display:flex;align-items:center;gap:10px;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 14px;">
+                <span class="mono" style="flex:1;color:var(--accent);">https://invoice-sentinel-api.sovergrid.app</span>
+                <button class="btn btn-ghost btn-sm" style="padding:4px 8px;" onclick="showToast('URL copied to clipboard')">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                  Copy
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Live logs -->
+          <div class="card" style="margin-bottom:16px;">
+            <div class="card-header">
+              <span class="card-title">Live Logs</span>
+              <span style="font-size:12px;color:var(--text-muted);">Last 50 lines</span>
+            </div>
+            <div class="card-body" style="padding:0;">
+              <div class="log-box">
+                <div><span class="log-ts">07:42:01</span><span class="log-ok">INFO</span>     Application started on port 8000</div>
+                <div><span class="log-ts">07:42:03</span><span class="log-ok">INFO</span>     Database connection established (Kwil)</div>
+                <div><span class="log-ts">07:43:11</span><span class="log-ok">INFO</span>     GET /api/invoices 200 OK — 34ms</div>
+                <div><span class="log-ts">07:43:15</span><span class="log-ok">INFO</span>     POST /api/invoices/send 200 OK — 89ms</div>
+                <div><span class="log-ts">07:44:02</span><span class="log-warn">WARN</span>     Resend rate limit approaching (80% threshold)</div>
+                <div><span class="log-ts">07:44:30</span><span class="log-ok">INFO</span>     GET /health 200 OK — 2ms</div>
+                <div><span class="log-ts">07:45:00</span><span class="log-ok">INFO</span>     Subscription billing cycle: 0 overdue</div>
+                <div><span class="log-ts">07:46:12</span><span class="log-ok">INFO</span>     GET /api/clients 200 OK — 21ms</div>
+                <div><span class="log-ts">07:47:55</span><span class="log-ok">INFO</span>     GET /health 200 OK — 1ms</div>
+                <div><span class="log-ts">07:48:31</span><span class="log-ok">INFO</span>     POST /api/webhooks/xero 200 OK — 112ms</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Environment Variables -->
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">Environment Variables</span>
+              <button class="btn btn-secondary btn-sm">Add variable</button>
+            </div>
+            <div class="card-body">
+              <div class="info-row">
+                <span class="info-label mono">DATABASE_URL</span>
+                <span class="mono" style="color:var(--text-muted);">kwil://•••••••••••••••</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label mono">RESEND_API_KEY</span>
+                <span class="mono" style="color:var(--text-muted);">re_•••••••••••••••</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label mono">JWT_SECRET</span>
+                <span class="mono" style="color:var(--text-muted);">•••••••••••••••</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label mono">PORT</span>
+                <span class="mono">8000</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right column -->
+        <div>
+
+          <!-- Deployment Info -->
+          <div class="card" style="margin-bottom:16px;">
+            <div class="card-header"><span class="card-title">Deployment Info</span></div>
+            <div class="card-body">
+              <div class="info-row"><span class="info-label">Provider</span><span class="info-value"><span class="badge badge-purple">Akash</span></span></div>
+              <div class="info-row"><span class="info-label">Region</span><span class="info-value">auto</span></div>
+              <div class="info-row"><span class="info-label">CPU</span><span class="info-value">2 cores</span></div>
+              <div class="info-row"><span class="info-label">Memory</span><span class="info-value">512Mi</span></div>
+              <div class="info-row"><span class="info-label">Storage</span><span class="info-value">1Gi (Filecoin)</span></div>
+              <div class="info-row"><span class="info-label">Database</span><span class="info-value">Kwil</span></div>
+              <div class="info-row"><span class="info-label">Port</span><span class="info-value mono">8000</span></div>
+              <div class="info-row"><span class="info-label">Monthly cost</span><span class="info-value">$7.00 USDC</span></div>
+              <div class="info-row"><span class="info-label">Deployed</span><span class="info-value">June 20, 2026</span></div>
+              <div class="info-row"><span class="info-label">Tx hash</span>
+                <span class="mono" style="font-size:11px;color:var(--text-muted);">0x4f3a...c9b2</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Uptime last 7d -->
+          <div class="card">
+            <div class="card-header"><span class="card-title">Uptime (7 days)</span></div>
+            <div class="card-body">
+              <div style="display:flex;gap:3px;margin-bottom:10px;">
+                <!-- 1 bar per day. Green = healthy, yellow = degraded -->
+                <div style="flex:1;height:28px;background:var(--green);border-radius:3px;" title="Jun 29 — 100%"></div>
+                <div style="flex:1;height:28px;background:var(--green);border-radius:3px;" title="Jun 30 — 100%"></div>
+                <div style="flex:1;height:28px;background:var(--green);border-radius:3px;" title="Jul 1 — 100%"></div>
+                <div style="flex:1;height:28px;background:var(--yellow);border-radius:3px;" title="Jul 2 — 94.2%"></div>
+                <div style="flex:1;height:28px;background:var(--green);border-radius:3px;" title="Jul 3 — 100%"></div>
+                <div style="flex:1;height:28px;background:var(--green);border-radius:3px;" title="Jul 4 — 100%"></div>
+                <div style="flex:1;height:28px;background:var(--green);border-radius:3px;" title="Jul 5 — 100%"></div>
+              </div>
+              <p style="font-size:12px;color:var(--text-secondary);">99.7% average uptime over the last 7 days</p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Terminate Modal -->
+<div class="modal-overlay" id="terminateModal" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="modal">
+    <div class="modal-title">Terminate deployment?</div>
+    <p class="modal-desc">This will permanently shut down <strong>invoice-sentinel-api</strong>, cancel its subscription, and release the Akash lease. All environment variables will be deleted. This cannot be undone.</p>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="document.getElementById('terminateModal').classList.remove('open')">Cancel</button>
+      <button class="btn btn-danger" onclick="showToast('Termination scheduled. Container will stop within 60 seconds.');document.getElementById('terminateModal').classList.remove('open')">Terminate</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast-container" id="toasts"></div>
+<script>
+function showToast(msg) {
+  const t = document.createElement('div');
+  t.className = 'toast';
+  t.textContent = msg;
+  document.getElementById('toasts').appendChild(t);
+  setTimeout(() => t.remove(), 3500);
+}
+</script>
+<script>window.SG_ACTIVE_PAGE = 'myapps';</script>
+<script src="sg-nav.js"></script>
+</body>
+</html>

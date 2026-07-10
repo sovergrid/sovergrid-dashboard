@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Billing — SoverGrid</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .balance-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 26px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+    .balance-amount { font-size: 36px; font-weight: 700; letter-spacing: -1px; color: var(--text-primary); }
+    .balance-label  { font-size: 13px; color: var(--text-secondary); margin-bottom: 6px; font-weight: 500; }
+    .balance-rate   { font-size: 13px; color: var(--text-muted); margin-top: 5px; }
+    .balance-rate strong { color: var(--text-primary); }
+
+    .usage-bar-wrap { margin-bottom: 6px; }
+    .usage-bar { height: 6px; background: var(--border); border-radius: 99px; overflow: hidden; }
+    .usage-bar-fill { height: 100%; background: var(--accent); border-radius: 99px; transition: width 0.4s; }
+
+    .usage-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 13px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .usage-row:last-child { border-bottom: none; }
+    .usage-name { font-size: 13.5px; font-weight: 500; }
+    .usage-meta { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+    .usage-cost { font-size: 13.5px; font-weight: 600; text-align: right; }
+    .usage-rate { font-size: 11.5px; color: var(--text-muted); }
+    .sidebar.collapsed .sidebar-user-info { display: none; }
+    .sidebar.collapsed .sidebar-user { justify-content: center; padding: 10px 0; }
+  </style>
+</head>
+<body>
+<div class="layout">
+
+  <!-- Sidebar injected by JS based on mode -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-top">
+      <div class="sidebar-logo-wrap">
+        <div class="sidebar-logo-icon" id="logo-icon">
+          <svg viewBox="0 0 30 30" fill="none" width="26" height="26">
+            <circle cx="15" cy="4"  r="3.5" fill="#7C3AED"/>
+            <circle cx="4"  cy="25" r="2.8" fill="#111111"/>
+            <circle cx="26" cy="25" r="2.8" fill="#111111"/>
+            <circle cx="15" cy="16" r="2.8" fill="#111111"/>
+            <line x1="15" y1="4"  x2="4"  y2="25" stroke="#7C3AED" stroke-width="1.3" opacity="0.7"/>
+            <line x1="15" y1="4"  x2="26" y2="25" stroke="#7C3AED" stroke-width="1.3" opacity="0.7"/>
+            <line x1="4"  y1="25" x2="26" y2="25" stroke="#888" stroke-width="1.3"/>
+            <line x1="15" y1="4"  x2="15" y2="16" stroke="#7C3AED" stroke-width="1.3"/>
+            <line x1="4"  y1="25" x2="15" y2="16" stroke="#888" stroke-width="1.3"/>
+            <line x1="26" y1="25" x2="15" y2="16" stroke="#888" stroke-width="1.3"/>
+          </svg>
+        </div>
+        <span class="sidebar-logo-text">sovergrid</span>
+      </div>
+      <button class="sidebar-toggle" id="sidebar-toggle-btn" onclick="toggleSidebar()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+    </div>
+    <!-- nav injected by JS -->
+    <nav class="sidebar-nav" id="sidebar-nav"></nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="sidebar-avatar">JO</div>
+        <div class="sidebar-user-info">
+          <div class="sidebar-user-name">Joel Oyewole</div>
+          <div class="sidebar-user-plan" id="mode-label"></div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <div class="main">
+    <div class="page-header"><span class="page-title">Billing</span></div>
+
+    <div class="content">
+
+      <!-- ── Balance + Deposit ── -->
+      <div class="balance-card">
+        <div>
+          <div class="balance-label">Your SoverGrid Balance</div>
+          <div class="balance-amount">$142.50</div>
+          <div class="balance-rate">Consuming <strong>$0.96 / day</strong> across 3 active deployments &nbsp;·&nbsp; Runs out in ~<strong>148 days</strong></div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px;align-items:flex-end;">
+          <button class="btn btn-primary" onclick="document.getElementById('depositModal').classList.add('open')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14"><path d="M12 5v14M5 12h14"/></svg>
+            Deposit funds
+          </button>
+          <div style="font-size:12px;color:var(--text-muted);">Pay by card. Instant.</div>
+        </div>
+      </div>
+
+      <!-- ── Low balance warning (hidden by default, shown when balance is low) ── -->
+      <!-- Uncomment to preview:
+      <div style="background:var(--yellow-bg);border:1px solid #FDE68A;border-radius:var(--radius-sm);padding:12px 16px;margin-bottom:20px;font-size:13px;color:#92400E;">
+        <strong>Low balance warning:</strong> At your current usage rate, your balance will run out in 5 days. Deposit funds to keep your deployments running.
+      </div>
+      -->
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;">
+
+        <!-- ── Usage breakdown ── -->
+        <div class="card">
+          <div class="card-header"><span class="card-title">Usage Breakdown</span></div>
+          <div class="card-body">
+
+            <div class="usage-row">
+              <div>
+                <div class="usage-name">invoice-sentinel-api</div>
+                <div class="usage-meta">Akash · 3 instances</div>
+              </div>
+              <div>
+                <div class="usage-cost">$7.00 / mo</div>
+                <div class="usage-rate">$0.23 / day</div>
+              </div>
+            </div>
+
+            <div class="usage-row">
+              <div>
+                <div class="usage-name">sovergrid-landing</div>
+                <div class="usage-meta">Spheron · 3 instances</div>
+              </div>
+              <div>
+                <div class="usage-cost">$15.00 / mo</div>
+                <div class="usage-rate">$0.50 / day</div>
+              </div>
+            </div>
+
+            <div class="usage-row">
+              <div>
+                <div class="usage-name">nexus-arch-cli-demo</div>
+                <div class="usage-meta">Akash · 3 instances</div>
+              </div>
+              <div>
+                <div class="usage-cost">$7.00 / mo</div>
+                <div class="usage-rate">$0.23 / day</div>
+              </div>
+            </div>
+
+            <div style="border-top:2px solid var(--border);margin-top:4px;padding-top:14px;display:flex;justify-content:space-between;align-items:center;">
+              <span style="font-size:13.5px;font-weight:600;">Total</span>
+              <div style="text-align:right;">
+                <div style="font-size:15px;font-weight:700;">$29.00 / mo</div>
+                <div style="font-size:12px;color:var(--text-muted);">$0.96 / day</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Balance history chart (simplified visual) ── -->
+        <div class="card">
+          <div class="card-header"><span class="card-title">Balance Over Time</span></div>
+          <div class="card-body">
+            <div style="font-size:12px;color:var(--text-muted);margin-bottom:10px;">Last 60 days</div>
+            <svg width="100%" height="110" viewBox="0 0 300 110" preserveAspectRatio="none">
+              <!-- area fill -->
+              <defs>
+                <clipPath id="chart-clip">
+                  <rect width="300" height="110"/>
+                </clipPath>
+              </defs>
+              <!-- balance declining line (deposits cause jumps up, draining causes slope down) -->
+              <polyline
+                fill="none"
+                stroke="#7C3AED"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                points="0,20 40,38 55,10 100,30 140,50 155,15 200,38 240,58 280,72 300,78"
+              />
+              <!-- dots at deposit events -->
+              <circle cx="55"  cy="10" r="4" fill="#7C3AED"/>
+              <circle cx="155" cy="15" r="4" fill="#7C3AED"/>
+              <!-- deposit labels -->
+              <text x="57" y="8" font-size="9" fill="#6B6B6B">+$100</text>
+              <text x="157" y="13" font-size="9" fill="#6B6B6B">+$80</text>
+            </svg>
+            <div style="display:flex;align-items:center;gap:8px;margin-top:8px;font-size:12px;color:var(--text-muted);">
+              <span style="display:inline-flex;align-items:center;gap:4px;"><span style="width:10px;height:2px;background:#7C3AED;display:inline-block;border-radius:1px;"></span> Balance</span>
+              <span style="display:inline-flex;align-items:center;gap:4px;"><span style="width:8px;height:8px;border-radius:50%;background:#7C3AED;display:inline-block;"></span> Deposit</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ── Deposit history ── -->
+      <div class="card">
+        <div class="card-header"><span class="card-title">Deposit History</span></div>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Description</th>
+                <th>Amount</th>
+                <th>Method</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="color:var(--text-secondary);">Jun 28, 2026</td>
+                <td>Balance top-up</td>
+                <td style="font-weight:600;color:var(--green-text);">+$80.00</td>
+                <td>Mastercard ···4242</td>
+                <td><span class="status-badge healthy"><span class="status-dot green"></span>Completed</span></td>
+              </tr>
+              <tr>
+                <td style="color:var(--text-secondary);">May 15, 2026</td>
+                <td>Balance top-up</td>
+                <td style="font-weight:600;color:var(--green-text);">+$100.00</td>
+                <td>Mastercard ···4242</td>
+                <td><span class="status-badge healthy"><span class="status-dot green"></span>Completed</span></td>
+              </tr>
+              <tr>
+                <td style="color:var(--text-secondary);">Apr 2, 2026</td>
+                <td>First deposit</td>
+                <td style="font-weight:600;color:var(--green-text);">+$50.00</td>
+                <td>Mastercard ···4242</td>
+                <td><span class="status-badge healthy"><span class="status-dot green"></span>Completed</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ── Deposit Modal ── -->
+<div class="modal-overlay" id="depositModal" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="modal">
+    <div class="modal-title">Deposit Funds</div>
+    <p class="modal-desc">Add money to your SoverGrid balance. Your deployments will keep running as long as your balance is positive.</p>
+
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:18px;">
+      <button class="amount-btn btn btn-secondary" onclick="setAmount(20)" id="amt-20">$20</button>
+      <button class="amount-btn btn btn-secondary" onclick="setAmount(50)" id="amt-50" style="border-color:var(--accent);color:var(--accent);background:var(--accent-bg);">$50</button>
+      <button class="amount-btn btn btn-secondary" onclick="setAmount(100)" id="amt-100">$100</button>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Or enter a custom amount</label>
+      <div style="position:relative;">
+        <span style="position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:14px;">$</span>
+        <input class="form-input" id="custom-amount" type="number" placeholder="0.00" min="5" style="padding-left:26px;" oninput="clearPreset()">
+      </div>
+      <p class="form-hint">Minimum deposit: $5.00</p>
+    </div>
+
+    <div style="background:var(--bg);border-radius:var(--radius-sm);padding:12px 14px;margin-bottom:18px;font-size:13px;">
+      <div style="display:flex;justify-content:space-between;margin-bottom:6px;"><span style="color:var(--text-secondary);">Deposit amount</span><span id="modal-amount" style="font-weight:600;">$50.00</span></div>
+      <div style="display:flex;justify-content:space-between;"><span style="color:var(--text-secondary);">New balance after deposit</span><span style="font-weight:600;" id="modal-new-balance">$192.50</span></div>
+    </div>
+
+    <div style="font-size:12.5px;color:var(--text-muted);margin-bottom:20px;">
+      Payment processed securely by card on file (Mastercard ···4242).
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="document.getElementById('depositModal').classList.remove('open')">Cancel</button>
+      <button class="btn btn-primary" onclick="confirmDeposit()">Confirm deposit</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container" id="toasts"></div>
+<script>
+let selectedAmt = 50;
+
+function setAmount(n) {
+  selectedAmt = n;
+  document.querySelectorAll('.amount-btn').forEach(b => {
+    b.style.borderColor = '';
+    b.style.color = '';
+    b.style.background = '';
+  });
+  const btn = document.getElementById('amt-' + n);
+  if (btn) {
+    btn.style.borderColor = 'var(--accent)';
+    btn.style.color = 'var(--accent)';
+    btn.style.background = 'var(--accent-bg)';
+  }
+  document.getElementById('custom-amount').value = '';
+  document.getElementById('modal-amount').textContent = '$' + n.toFixed(2);
+  document.getElementById('modal-new-balance').textContent = '$' + (142.50 + n).toFixed(2);
+}
+
+function clearPreset() {
+  document.querySelectorAll('.amount-btn').forEach(b => {
+    b.style.borderColor = ''; b.style.color = ''; b.style.background = '';
+  });
+  const val = parseFloat(document.getElementById('custom-amount').value) || 0;
+  selectedAmt = val;
+  document.getElementById('modal-amount').textContent = '$' + val.toFixed(2);
+  document.getElementById('modal-new-balance').textContent = '$' + (142.50 + val).toFixed(2);
+}
+
+function confirmDeposit() {
+  document.getElementById('depositModal').classList.remove('open');
+  showToast('$' + selectedAmt.toFixed(2) + ' deposited successfully. Balance updated.');
+}
+
+
+
+
+function showToast(msg) {
+  const t = document.createElement('div');
+  t.className = 'toast'; t.textContent = msg;
+  document.getElementById('toasts').appendChild(t);
+  setTimeout(() => t.remove(), 3500);
+}
+</script>
+<script>window.SG_ACTIVE_PAGE = 'billing';</script>
+<script src="sg-nav.js"></script>
+</body>
+</html>

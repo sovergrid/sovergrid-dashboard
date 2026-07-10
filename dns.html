@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Domains & DNS — SoverGrid</title>
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root { --sidebar-width: 236px; }
+    .sidebar.collapsed .sidebar-user-info { display:none; }
+    .sidebar.collapsed .sidebar-user { justify-content:center; padding:10px 0; }
+  </style>
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-top">
+      <div class="sidebar-logo-wrap">
+        <div class="sidebar-logo-icon" id="logo-icon">
+          <svg viewBox="0 0 30 30" fill="none" width="26" height="26">
+            <circle cx="15" cy="4"  r="3.5" fill="#7C3AED"/>
+            <circle cx="4"  cy="25" r="2.8" fill="#111"/>
+            <circle cx="26" cy="25" r="2.8" fill="#111"/>
+            <circle cx="15" cy="16" r="2.8" fill="#111"/>
+            <line x1="15" y1="4"  x2="4"  y2="25" stroke="#7C3AED" stroke-width="1.3" opacity="0.7"/>
+            <line x1="15" y1="4"  x2="26" y2="25" stroke="#7C3AED" stroke-width="1.3" opacity="0.7"/>
+            <line x1="4"  y1="25" x2="26" y2="25" stroke="#888" stroke-width="1.3"/>
+            <line x1="15" y1="4"  x2="15" y2="16" stroke="#7C3AED" stroke-width="1.3"/>
+            <line x1="4"  y1="25" x2="15" y2="16" stroke="#888" stroke-width="1.3"/>
+            <line x1="26" y1="25" x2="15" y2="16" stroke="#888" stroke-width="1.3"/>
+          </svg>
+        </div>
+        <span class="sidebar-logo-text">sovergrid</span>
+      </div>
+      <button class="sidebar-toggle" id="sidebar-toggle-btn" onclick="toggleSidebar()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+    </div>
+    <nav class="sidebar-nav" id="sidebar-nav"></nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="sidebar-avatar">JO</div>
+        <div class="sidebar-user-info">
+          <div class="sidebar-user-name">Joel Oyewole</div>
+          <div class="sidebar-user-plan" id="mode-label" style="color:#7C3AED;font-weight:600;"></div>
+        </div>
+      </div>
+    </div>
+  </aside>
+  <div class="main">
+    <div class="page-header">
+      <span class="page-title">Domains & DNS</span>
+    </div>
+    <div class="content">
+      
+      <div class="card" style="margin-bottom:14px;">
+        <div class="card-header">
+          <span class="card-title">Custom Domains</span>
+          <button class="btn btn-primary btn-sm" onclick="showToast('Domain management coming soon')">Add domain</button>
+        </div>
+        <div class="card-body">
+          <div style="background:#F8F7F4;border:1px solid #EBEBEB;border-radius:10px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;">
+            <div>
+              <div style="font-size:13.5px;font-weight:700;">sovergrid.network</div>
+              <div style="font-size:12.5px;color:#AAAAAA;margin-top:3px;">Pointing to invoice-sentinel-api &nbsp;·&nbsp; TLS active</div>
+            </div>
+            <div style="display:flex;gap:8px;align-items:center;">
+              <span style="background:#F0FDF4;color:#15803D;font-size:12px;font-weight:600;border-radius:4px;padding:2px 8px;">● Active</span>
+              <button class="btn btn-ghost btn-sm">Manage</button>
+            </div>
+          </div>
+          <p style="font-size:13px;color:#AAAAAA;margin-top:14px;">Add a CNAME record pointing <code style="font-size:12px;background:#F8F7F4;padding:1px 5px;border-radius:3px;">your-domain.com</code> to <code style="font-size:12px;background:#F8F7F4;padding:1px 5px;border-radius:3px;">app.sovergrid.network</code> and we handle TLS automatically.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="toast-container" id="toasts"></div>
+<script>
+function showToast(msg) {
+  const t = document.createElement('div');
+  t.className = 'toast'; t.textContent = msg;
+  document.getElementById('toasts').appendChild(t);
+  setTimeout(() => t.remove(), 3200);
+}
+</script>
+<script>window.SG_ACTIVE_PAGE = 'dns';</script>
+<script src="sg-nav.js"></script>
+</body>
+</html>

@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Console — SoverGrid Developer</title>
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    /* ── Developer console: wider sidebar with categories ── */
+    :root { --sidebar-width: 236px; }
+
+    .sidebar.collapsed .sidebar-user-info { display:none; }
+    .sidebar.collapsed .sidebar-user { justify-content:center; padding:10px 0; }
+
+
+    /* ── Top bar (AWS-style above main content) ── */
+    .dev-topbar {
+      background:#fff;
+      border-bottom:1px solid #EBEBEB;
+      padding:0 24px;
+      height:46px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      flex-shrink:0;
+    }
+    .topbar-left { display:flex; align-items:center; gap:20px; }
+    .topbar-right { display:flex; align-items:center; gap:12px; }
+
+    .provider-select {
+      display:flex; align-items:center; gap:7px;
+      border:1px solid #EBEBEB; border-radius:6px;
+      padding:5px 10px; font-size:12.5px; font-weight:500;
+      cursor:pointer; background:#fff;
+    }
+    .provider-dot { width:7px; height:7px; border-radius:50%; background:#7C3AED; }
+
+    .api-key-chip {
+      display:flex; align-items:center; gap:8px;
+      border:1px solid #EBEBEB; border-radius:6px;
+      padding:5px 10px; font-size:12px; background:#F8F7F4;
+      cursor:pointer; transition:border-color 0.15s;
+    }
+    .api-key-chip:hover { border-color:#7C3AED; }
+    .api-key-chip code { font-family:'JetBrains Mono',monospace; font-size:11.5px; color:#6B6B6B; }
+    .api-key-chip-label { font-size:11px; color:#AAAAAA; }
+
+    .topbar-badge {
+      display:flex; align-items:center; gap:5px;
+      font-size:12px; color:#15803D; font-weight:600;
+    }
+
+    /* ── Stats row ── */
+    .stats-row {
+      display:grid;
+      grid-template-columns:repeat(4, 1fr);
+      gap:0;
+      border-bottom:1px solid #EBEBEB;
+      background:#fff;
+    }
+    .stat-cell {
+      padding:14px 24px;
+      border-right:1px solid #EBEBEB;
+    }
+    .stat-cell:last-child { border-right:none; }
+    .stat-cell-val { font-size:22px; font-weight:800; letter-spacing:-0.5px; color:#111; }
+    .stat-cell-label { font-size:11.5px; color:#AAAAAA; margin-top:1px; }
+
+    /* ── Services grid (AWS style) ── */
+    .console-body { padding:24px; overflow-y:auto; }
+    .console-section-title {
+      font-size:12px; font-weight:700;
+      text-transform:uppercase; letter-spacing:0.08em;
+      color:#AAAAAA; margin-bottom:12px;
+    }
+    .services-grid {
+      display:grid;
+      grid-template-columns:repeat(3, 1fr);
+      gap:12px;
+      margin-bottom:32px;
+    }
+    .service-tile {
+      background:#fff;
+      border:1px solid #EBEBEB;
+      border-radius:12px;
+      padding:18px 20px;
+      cursor:pointer;
+      transition:border-color 0.15s, box-shadow 0.15s;
+      display:flex;
+      flex-direction:column;
+    }
+    .service-tile:hover { border-color:#7C3AED; box-shadow:0 2px 12px rgba(108,99,255,0.08); }
+    .service-tile-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
+    .service-tile-icon {
+      width:36px; height:36px; border-radius:8px;
+      display:flex; align-items:center; justify-content:center;
+    }
+    .service-tile-count { font-size:11px; font-weight:700; background:#F8F7F4; border-radius:4px; padding:2px 7px; color:#6B6B6B; }
+    .service-tile-name { font-size:14px; font-weight:700; margin-bottom:3px; }
+    .service-tile-desc { font-size:12px; color:#AAAAAA; line-height:1.45; flex:1; }
+    .service-tile-link { font-size:12px; font-weight:600; color:#7C3AED; margin-top:10px; display:flex; align-items:center; gap:4px; }
+
+    /* ── Two-column bottom ── */
+    .console-bottom { display:grid; grid-template-columns:1.4fr 1fr; gap:16px; }
+
+    /* ── Deployments table (technical) ── */
+    .dev-table { width:100%; border-collapse:collapse; font-size:13px; }
+    .dev-table th { font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.06em; color:#AAAAAA; text-align:left; padding:8px 12px; border-bottom:2px solid #EBEBEB; }
+    .dev-table td { padding:11px 12px; border-bottom:1px solid #EBEBEB; color:#111; }
+    .dev-table tr:last-child td { border-bottom:none; }
+    .dev-table tr:hover td { background:#FAFAF8; }
+    .td-name { font-weight:600; font-size:13px; }
+    .td-mono { font-family:'JetBrains Mono',monospace; font-size:11.5px; color:#6B6B6B; }
+    .td-badge-live { display:inline-flex; align-items:center; gap:5px; background:#F0FDF4; color:#15803D; border-radius:4px; padding:2px 8px; font-size:11.5px; font-weight:600; }
+    .td-badge-stopped { display:inline-flex; align-items:center; gap:5px; background:#FEF2F2; color:#B91C1C; border-radius:4px; padding:2px 8px; font-size:11.5px; font-weight:600; }
+    .td-dot-g { width:5px; height:5px; border-radius:50%; background:#22C55E; }
+    .td-dot-r { width:5px; height:5px; border-radius:50%; background:#EF4444; }
+
+    /* ── Activity feed ── */
+    .activity-item { display:flex; gap:10px; padding:11px 0; border-bottom:1px solid #EBEBEB; }
+    .activity-item:last-child { border-bottom:none; }
+    .activity-icon { width:28px; height:28px; border-radius:6px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+    .activity-text { font-size:12.5px; color:#111; line-height:1.4; }
+    .activity-time { font-size:11px; color:#AAAAAA; margin-top:2px; }
+
+    /* Layout override: main becomes flex-col */
+    .main { display:flex; flex-direction:column; overflow:hidden; }
+    .console-scroll { flex:1; overflow-y:auto; }
+  </style>
+</head>
+<body>
+<div class="layout">
+
+  <!-- ══ SIDEBAR ══ -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-top">
+      <div class="sidebar-logo-wrap">
+        <div class="sidebar-logo-icon" id="logo-icon">
+          <svg viewBox="0 0 30 30" fill="none" width="26" height="26">
+            <circle cx="15" cy="4"  r="3.5" fill="#7C3AED"/>
+            <circle cx="4"  cy="25" r="2.8" fill="#111"/>
+            <circle cx="26" cy="25" r="2.8" fill="#111"/>
+            <circle cx="15" cy="16" r="2.8" fill="#111"/>
+            <line x1="15" y1="4"  x2="4"  y2="25" stroke="#7C3AED" stroke-width="1.3" opacity="0.7"/>
+            <line x1="15" y1="4"  x2="26" y2="25" stroke="#7C3AED" stroke-width="1.3" opacity="0.7"/>
+            <line x1="4"  y1="25" x2="26" y2="25" stroke="#888" stroke-width="1.3"/>
+            <line x1="15" y1="4"  x2="15" y2="16" stroke="#7C3AED" stroke-width="1.3"/>
+            <line x1="4"  y1="25" x2="15" y2="16" stroke="#888" stroke-width="1.3"/>
+            <line x1="26" y1="25" x2="15" y2="16" stroke="#888" stroke-width="1.3"/>
+          </svg>
+        </div>
+        <span class="sidebar-logo-text">sovergrid</span>
+      </div>
+      <button class="sidebar-toggle" id="sidebar-toggle-btn" onclick="toggleSidebar()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+    </div>
+    <nav class="sidebar-nav" id="sidebar-nav"></nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="sidebar-avatar">JO</div>
+        <div class="sidebar-user-info">
+          <div class="sidebar-user-name">Joel Oyewole</div>
+          <div class="sidebar-user-plan" id="mode-label" style="color:#7C3AED;font-weight:600;"></div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ══ MAIN ══ -->
+  <div class="main">
+
+    <!-- Top bar: provider + API key quick copy -->
+    <div class="dev-topbar">
+      <div class="topbar-left">
+        <div class="provider-select">
+          <span class="provider-dot"></span>
+          <span>Akash Network</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+        <div class="topbar-badge">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="12" height="12"><path d="M5 13l4 4L19 7"/></svg>
+          All systems operational
+        </div>
+      </div>
+      <div class="topbar-right">
+        <div class="api-key-chip" onclick="copyKey()">
+          <span class="api-key-chip-label">API KEY</span>
+          <code>sgk_live_••••••••••3f9a</code>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        </div>
+        <a href="new-deployment.html" class="btn btn-primary btn-sm">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="12" height="12"><path d="M12 5v14M5 12h14"/></svg>
+          New deployment
+        </a>
+      </div>
+    </div>
+
+    <!-- Stats row -->
+    <div class="stats-row">
+      <div class="stat-cell">
+        <div class="stat-cell-val">3</div>
+        <div class="stat-cell-label">Running deployments</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-cell-val">9</div>
+        <div class="stat-cell-label">Total containers live</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-cell-val">$29.00</div>
+        <div class="stat-cell-label">Monthly spend</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-cell-val">$142.50</div>
+        <div class="stat-cell-label">Account balance</div>
+      </div>
+    </div>
+
+    <div class="console-scroll">
+      <div class="console-body">
+
+        <!-- Services grid -->
+        <div class="console-section-title">Services</div>
+        <div class="services-grid">
+
+          <a href="containers.html" class="service-tile" style="border-color:#7C3AED;background:#FAFAFF;">
+            <div class="service-tile-header">
+              <div class="service-tile-icon" style="background:#F5F3FF;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#7C3AED" stroke-width="2" width="18" height="18"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+              </div>
+              <span class="service-tile-count">3 running</span>
+            </div>
+            <div class="service-tile-name">Deployments</div>
+            <div class="service-tile-desc">Manage all your running containers and replicas across providers.</div>
+            <div class="service-tile-link">Open console <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="11" height="11"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
+          </a>
+
+          <a href="apikeys.html" class="service-tile" id="api-keys">
+            <div class="service-tile-header">
+              <div class="service-tile-icon" style="background:#FFF7ED;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#F59E0B" stroke-width="2" width="18" height="18"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
+              </div>
+              <span class="service-tile-count">2 active</span>
+            </div>
+            <div class="service-tile-name">API Keys</div>
+            <div class="service-tile-desc">Generate and manage keys for the CLI and your CI/CD pipelines.</div>
+            <div class="service-tile-link" style="margin-top:10px;">
+              <div style="font-family:'JetBrains Mono',monospace;font-size:11.5px;background:#F8F7F4;border-radius:5px;padding:5px 8px;color:#6B6B6B;word-break:break-all;">sgk_live_••••••••••3f9a</div>
+            </div>
+            <button class="btn btn-secondary btn-sm" style="margin-top:8px;width:100%;" onclick="event.preventDefault(); event.stopPropagation(); showToast('API key copied to clipboard')">Copy key</button>
+          </a>
+
+          <a href="monitoring.html" class="service-tile">
+            <div class="service-tile-header">
+              <div class="service-tile-icon" style="background:#F0FDF4;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#22C55E" stroke-width="2" width="18" height="18"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+              </div>
+              <span class="service-tile-count" style="background:#F0FDF4;color:#15803D;">All healthy</span>
+            </div>
+            <div class="service-tile-name">Monitoring</div>
+            <div class="service-tile-desc">Live request rates, container health, and uptime across all deployments.</div>
+            <div class="service-tile-link">View metrics <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="11" height="11"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
+          </a>
+
+          <a href="dns.html" class="service-tile">
+            <div class="service-tile-header">
+              <div class="service-tile-icon" style="background:#EFF6FF;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#3B82F6" stroke-width="2" width="18" height="18"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+              </div>
+              <span class="service-tile-count">1 domain</span>
+            </div>
+            <div class="service-tile-name">Domains & DNS</div>
+            <div class="service-tile-desc">Map custom domains to your deployments. Automatic TLS included.</div>
+            <div class="service-tile-link">Manage DNS <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="11" height="11"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
+          </a>
+
+          <a href="cli-setup.html" class="service-tile">
+            <div class="service-tile-header">
+              <div class="service-tile-icon" style="background:#F8F7F4;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2" width="18" height="18"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+              </div>
+            </div>
+            <div class="service-tile-name">CLI</div>
+            <div class="service-tile-desc">Install the <code style="font-family:'JetBrains Mono';font-size:12px;background:#F8F7F4;padding:1px 4px;border-radius:3px;">sovergrid</code> CLI and deploy from any terminal or CI pipeline.</div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:12px;background:#111;color:#7C3AED;border-radius:6px;padding:7px 10px;margin-top:10px;">
+              <span style="color:rgba(255,255,255,0.4);">$</span> npm i -g @sovergrid/cli
+            </div>
+          </a>
+
+          <a href="billing.html" class="service-tile">
+            <div class="service-tile-header">
+              <div class="service-tile-icon" style="background:#FFF1F9;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#EC4899" stroke-width="2" width="18" height="18"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
+              </div>
+              <span class="service-tile-count" style="background:#FFF1F9;color:#EC4899;">$142.50</span>
+            </div>
+            <div class="service-tile-name">Billing</div>
+            <div class="service-tile-desc">Balance, spend history, and deposit funds via card.</div>
+            <div class="service-tile-link">View billing <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="11" height="11"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
+          </a>
+
+        </div>
+
+        <!-- Bottom: deployments table + activity -->
+        <div class="console-bottom">
+
+          <!-- Deployments table -->
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">Active Deployments</span>
+              <a href="new-deployment.html" class="btn btn-secondary btn-sm">New</a>
+            </div>
+            <div class="card-body" style="padding:0;">
+              <table class="dev-table">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Provider</th>
+                    <th>Replicas</th>
+                    <th>Uptime</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr style="cursor:pointer" onclick="window.location.href='deployment-detail.html'">
+                    <td>
+                      <div class="td-name">invoice-sentinel-api</div>
+                      <div class="td-mono">akash1x7k9m2j…</div>
+                    </td>
+                    <td>Akash</td>
+                    <td>3/3</td>
+                    <td>99.98%</td>
+                    <td><span class="td-badge-live"><span class="td-dot-g"></span>Live</span></td>
+                  </tr>
+                  <tr style="cursor:pointer" onclick="window.location.href='deployment-detail.html'">
+                    <td>
+                      <div class="td-name">sovergrid-landing</div>
+                      <div class="td-mono">sph1r9p2q4m…</div>
+                    </td>
+                    <td>Spheron</td>
+                    <td>2/3</td>
+                    <td>99.71%</td>
+                    <td><span class="td-badge-live"><span class="td-dot-g"></span>Degraded</span></td>
+                  </tr>
+                  <tr style="cursor:pointer" onclick="window.location.href='deployment-detail.html'">
+                    <td>
+                      <div class="td-name">nexus-arch-demo</div>
+                      <div class="td-mono">akash3n1z8v5…</div>
+                    </td>
+                    <td>Akash</td>
+                    <td>0/1</td>
+                    <td>—</td>
+                    <td><span class="td-badge-stopped"><span class="td-dot-r"></span>Stopped</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Activity feed -->
+          <div class="card">
+            <div class="card-header"><span class="card-title">Recent Activity</span></div>
+            <div class="card-body" style="padding:12px 16px;">
+              <div class="activity-item">
+                <div class="activity-icon" style="background:#F0FDF4;">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="#22C55E" stroke-width="2" width="14" height="14"><path d="M5 13l4 4L19 7"/></svg>
+                </div>
+                <div>
+                  <div class="activity-text">Deployment <strong>invoice-sentinel-api</strong> restarted successfully</div>
+                  <div class="activity-time">2 minutes ago</div>
+                </div>
+              </div>
+              <div class="activity-item">
+                <div class="activity-icon" style="background:#FFFBEB;">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="#F59E0B" stroke-width="2" width="14" height="14"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                </div>
+                <div>
+                  <div class="activity-text">Container 3 on <strong>sovergrid-landing</strong> went offline</div>
+                  <div class="activity-time">14 minutes ago</div>
+                </div>
+              </div>
+              <div class="activity-item">
+                <div class="activity-icon" style="background:#F5F3FF;">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="#7C3AED" stroke-width="2" width="14" height="14"><path d="M12 5v14M5 12h14"/></svg>
+                </div>
+                <div>
+                  <div class="activity-text">New deployment <strong>nexus-arch-demo</strong> created</div>
+                  <div class="activity-time">1 hour ago</div>
+                </div>
+              </div>
+              <div class="activity-item">
+                <div class="activity-icon" style="background:#F8F7F4;">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="#6B6B6B" stroke-width="2" width="14" height="14"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
+                </div>
+                <div>
+                  <div class="activity-text">$50.00 deposited to account balance</div>
+                  <div class="activity-time">Yesterday, 6:41 PM</div>
+                </div>
+              </div>
+              <div class="activity-item">
+                <div class="activity-icon" style="background:#F0FDF4;">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="#22C55E" stroke-width="2" width="14" height="14"><path d="M5 13l4 4L19 7"/></svg>
+                </div>
+                <div>
+                  <div class="activity-text">API key <strong>sgk_live_…3f9a</strong> generated</div>
+                  <div class="activity-time">Yesterday, 2:15 PM</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container" id="toasts"></div>
+<script>
+function copyKey() { showToast('API key copied to clipboard'); }
+function showToast(msg) {
+  const t = document.createElement('div');
+  t.className = 'toast'; t.textContent = msg;
+  document.getElementById('toasts').appendChild(t);
+  setTimeout(() => t.remove(), 3200);
+}
+</script>
+<script>window.SG_ACTIVE_PAGE = 'deployments-dev';</script>
+<script src="sg-nav.js"></script>
+</body>
+</html>

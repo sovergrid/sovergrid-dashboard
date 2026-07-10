@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>API Keys — SoverGrid</title>
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root { --sidebar-width: 236px; }
+    .sidebar.collapsed .sidebar-user-info { display:none; }
+    .sidebar.collapsed .sidebar-user { justify-content:center; padding:10px 0; }
+  </style>
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-top">
+      <div class="sidebar-logo-wrap">
+        <div class="sidebar-logo-icon" id="logo-icon">
+          <svg viewBox="0 0 30 30" fill="none" width="26" height="26">
+            <circle cx="15" cy="4"  r="3.5" fill="#7C3AED"/>
+            <circle cx="4"  cy="25" r="2.8" fill="#111"/>
+            <circle cx="26" cy="25" r="2.8" fill="#111"/>
+            <circle cx="15" cy="16" r="2.8" fill="#111"/>
+            <line x1="15" y1="4"  x2="4"  y2="25" stroke="#7C3AED" stroke-width="1.3" opacity="0.7"/>
+            <line x1="15" y1="4"  x2="26" y2="25" stroke="#7C3AED" stroke-width="1.3" opacity="0.7"/>
+            <line x1="4"  y1="25" x2="26" y2="25" stroke="#888" stroke-width="1.3"/>
+            <line x1="15" y1="4"  x2="15" y2="16" stroke="#7C3AED" stroke-width="1.3"/>
+            <line x1="4"  y1="25" x2="15" y2="16" stroke="#888" stroke-width="1.3"/>
+            <line x1="26" y1="25" x2="15" y2="16" stroke="#888" stroke-width="1.3"/>
+          </svg>
+        </div>
+        <span class="sidebar-logo-text">sovergrid</span>
+      </div>
+      <button class="sidebar-toggle" id="sidebar-toggle-btn" onclick="toggleSidebar()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+    </div>
+    <nav class="sidebar-nav" id="sidebar-nav"></nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="sidebar-avatar">JO</div>
+        <div class="sidebar-user-info">
+          <div class="sidebar-user-name">Joel Oyewole</div>
+          <div class="sidebar-user-plan" id="mode-label" style="color:#7C3AED;font-weight:600;"></div>
+        </div>
+      </div>
+    </div>
+  </aside>
+  <div class="main">
+    <div class="page-header">
+      <span class="page-title">API Keys</span>
+      <div style="display:flex;gap:10px;">
+        <a href="developer.html" class="btn btn-ghost btn-sm">← Console</a>
+      </div>
+    </div>
+    <div class="content">
+      
+      <div class="card" style="margin-bottom:14px;">
+        <div class="card-header">
+          <span class="card-title">Your API Keys</span>
+          <button class="btn btn-primary btn-sm" onclick="showToast('New key generated')">Generate new key</button>
+        </div>
+        <div class="card-body">
+          <p style="font-size:13px;color:#6B6B6B;margin-bottom:16px;">Use these keys with the SoverGrid CLI or inside CI/CD pipelines. A key can only be viewed once — copy it before leaving this page.</p>
+          <div style="background:#F8F7F4;border:1px solid #EBEBEB;border-radius:10px;padding:14px 16px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;">
+            <div>
+              <div style="font-size:13px;font-weight:700;margin-bottom:3px;">Production key</div>
+              <code style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#6B6B6B;">sgk_live_••••••••••••••••3f9a</code>
+              <div style="font-size:11.5px;color:#AAAAAA;margin-top:4px;">Created Jul 5, 2026 · Last used today</div>
+            </div>
+            <div style="display:flex;gap:8px;">
+              <button class="btn btn-ghost btn-sm" onclick="showToast('Copied')">Copy</button>
+              <button class="btn btn-danger btn-sm" onclick="showToast('Key revoked')">Revoke</button>
+            </div>
+          </div>
+          <div style="background:#F8F7F4;border:1px solid #EBEBEB;border-radius:10px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;">
+            <div>
+              <div style="font-size:13px;font-weight:700;margin-bottom:3px;">CI/CD key</div>
+              <code style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#6B6B6B;">sgk_live_••••••••••••••••8b2c</code>
+              <div style="font-size:11.5px;color:#AAAAAA;margin-top:4px;">Created Jul 3, 2026 · Last used yesterday</div>
+            </div>
+            <div style="display:flex;gap:8px;">
+              <button class="btn btn-ghost btn-sm" onclick="showToast('Copied')">Copy</button>
+              <button class="btn btn-danger btn-sm" onclick="showToast('Key revoked')">Revoke</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-title">Using keys in the CLI</span></div>
+        <div class="card-body">
+          <div style="background:#111;border-radius:10px;padding:16px 18px;">
+            <div style="font-family:'JetBrains Mono',monospace;font-size:13px;color:rgba(255,255,255,0.5);margin-bottom:8px;"># Set your key as an environment variable</div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:13px;color:#7C3AED;">export SOVERGRID_API_KEY=sgk_live_…</div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:13px;color:rgba(255,255,255,0.5);margin-top:12px;"># Then deploy</div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:13px;color:#fff;">sovergrid deploy --provider akash --replicas 3</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="toast-container" id="toasts"></div>
+<script>
+function showToast(msg) {
+  const t = document.createElement('div');
+  t.className = 'toast'; t.textContent = msg;
+  document.getElementById('toasts').appendChild(t);
+  setTimeout(() => t.remove(), 3200);
+}
+</script>
+<script>window.SG_ACTIVE_PAGE = 'apikeys';</script>
+<script src="sg-nav.js"></script>
+</body>
+</html>

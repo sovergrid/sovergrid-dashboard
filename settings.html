@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Settings — SoverGrid</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .sidebar.collapsed .sidebar-user-info { display:none; }
+    .sidebar.collapsed .sidebar-user { justify-content:center; padding:10px 0; }
+    .toggle-row { display:flex; align-items:center; justify-content:space-between; padding:13px 0; border-bottom:1px solid var(--border); }
+    .toggle-row:last-child { border-bottom:none; }
+    .toggle-label-title { font-size:13.5px; font-weight:500; margin-bottom:2px; }
+    .toggle-label-desc  { font-size:12.5px; color:var(--text-muted); }
+    .sg-toggle { position:relative; display:inline-block; width:40px; height:22px; cursor:pointer; }
+    .sg-toggle input { opacity:0; width:0; height:0; }
+    .sg-track { position:absolute; inset:0; background:var(--border-strong); border-radius:99px; transition:.2s; }
+    .sg-thumb { position:absolute; top:3px; left:3px; width:16px; height:16px; background:#fff; border-radius:50%; transition:.2s; }
+    .sg-toggle input:checked ~ .sg-track { background:var(--accent); }
+    .sg-toggle input:checked ~ .sg-thumb { transform:translateX(18px); }
+
+    .switch-role-card {
+      border:2px solid var(--border);
+      border-radius:var(--radius);
+      padding:18px 20px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      cursor:pointer;
+      transition:border-color .15s;
+    }
+    .switch-role-card:hover { border-color:var(--border-strong); }
+
+    /* Mode-specific hiding */
+    .dev-only { display: none; }
+    .cons-only { display: none; }
+    body[data-mode="developer"] .dev-only { display: block; }
+    body[data-mode="developer"] .dev-only-flex { display: flex; }
+    body[data-mode="consumer"] .cons-only { display: block; }
+    body[data-mode="consumer"] .cons-only-flex { display: flex; }
+  </style>
+</head>
+<body>
+<script>
+  // Set mode early to avoid flicker
+  const initMode = localStorage.getItem('sg_mode') || 'consumer';
+  document.body.setAttribute('data-mode', initMode);
+</script>
+<div class="layout">
+
+  <!-- ══ SIDEBAR ══ -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-top">
+      <div class="sidebar-logo-wrap">
+        <!-- Claude-like behavior: clicking the logo area toggles the sidebar -->
+        <div class="sidebar-logo-icon">
+          <svg viewBox="0 0 30 30" fill="none" width="26" height="26">
+            <circle cx="15" cy="4"  r="3.5" fill="#7C3AED"/>
+            <circle cx="4"  cy="25" r="2.8" fill="#111"/>
+            <circle cx="26" cy="25" r="2.8" fill="#111"/>
+            <circle cx="15" cy="16" r="2.8" fill="#111"/>
+            <line x1="15" y1="4"  x2="4"  y2="25" stroke="#7C3AED" stroke-width="1.3" opacity="0.7"/>
+            <line x1="15" y1="4"  x2="26" y2="25" stroke="#7C3AED" stroke-width="1.3" opacity="0.7"/>
+            <line x1="4"  y1="25" x2="26" y2="25" stroke="#888" stroke-width="1.3"/>
+            <line x1="15" y1="4"  x2="15" y2="16" stroke="#7C3AED" stroke-width="1.3"/>
+            <line x1="4"  y1="25" x2="15" y2="16" stroke="#888" stroke-width="1.3"/>
+            <line x1="26" y1="25" x2="15" y2="16" stroke="#888" stroke-width="1.3"/>
+          </svg>
+        </div>
+        <span class="sidebar-logo-text">sovergrid</span>
+      </div>
+      <button class="sidebar-toggle" id="sidebar-toggle-btn" onclick="toggleSidebar()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+    </div>
+    <nav class="sidebar-nav" id="sidebar-nav"></nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="sidebar-avatar">JO</div>
+        <div class="sidebar-user-info">
+          <div class="sidebar-user-name">Joel Oyewole</div>
+          <div class="sidebar-user-plan" id="mode-label" style="color:#AAAAAA;"></div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ══ MAIN ══ -->
+  <div class="main">
+    <div class="page-header"><span class="page-title">Settings</span></div>
+    <div class="content" style="max-width:620px;">
+
+      <!-- Profile -->
+      <div class="card" style="margin-bottom:14px;">
+        <div class="card-header"><span class="card-title">Profile</span></div>
+        <div class="card-body">
+          <div class="form-group">
+            <label class="form-label">Full name</label>
+            <input class="form-input" type="text" value="Joel Oyewole">
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label class="form-label">Email address</label>
+            <input class="form-input" type="email" value="joel@sovergrid.network">
+          </div>
+          <button class="btn btn-primary btn-sm" style="margin-top:14px;" onclick="showToast('Profile saved')">Save changes</button>
+        </div>
+      </div>
+
+      <!-- Payment method -->
+      <div class="card" style="margin-bottom:14px;">
+        <div class="card-header">
+          <span class="card-title">Payment Method</span>
+          <button class="btn btn-secondary btn-sm" onclick="showToast('Card management coming soon')">Update card</button>
+        </div>
+        <div class="card-body">
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
+            <div style="background:#1A1F36;border-radius:6px;padding:7px 10px;">
+              <svg viewBox="0 0 38 24" width="38" height="24" fill="none"><rect width="38" height="24" rx="4" fill="#1A1F36"/><circle cx="15" cy="12" r="7" fill="#EB001B" opacity="0.9"/><circle cx="23" cy="12" r="7" fill="#F79E1B" opacity="0.9"/><path d="M19 7.2a7 7 0 0 1 0 9.6A7 7 0 0 1 19 7.2z" fill="#FF5F00"/></svg>
+            </div>
+            <div>
+              <div style="font-size:13.5px;font-weight:600;">Mastercard ending in 4242</div>
+              <div style="font-size:12.5px;color:var(--text-muted);">Expires 08/2028</div>
+            </div>
+          </div>
+          <p style="font-size:12.5px;color:var(--text-secondary);">Used when you add funds to your SoverGrid balance.</p>
+        </div>
+      </div>
+
+      <!-- API Keys (Developer only) -->
+      <div class="card dev-only" style="margin-bottom:14px;" id="api-keys-card">
+        <div class="card-header">
+          <span class="card-title">API Keys</span>
+          <span class="badge badge-gray">Developer</span>
+        </div>
+        <div class="card-body">
+          <div style="display:flex;align-items:center;justify-content:space-between;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 14px;margin-bottom:10px;">
+            <div>
+              <div style="font-size:13px;font-weight:500;margin-bottom:2px;">Production key</div>
+              <div class="mono" style="color:var(--text-muted);">sgk_live_••••••••••••••••••</div>
+            </div>
+            <button class="btn btn-ghost btn-sm" onclick="showToast('API key copied')">Copy</button>
+          </div>
+          <button class="btn btn-secondary btn-sm" onclick="showToast('New API key generated')">Generate new key</button>
+          <p style="font-size:12px;color:var(--text-muted);margin-top:10px;">API keys let you deploy via the CLI and integrate SoverGrid into your workflow.</p>
+        </div>
+      </div>
+
+      <!-- AI Agent Tokens (Developer only) -->
+      <div class="card dev-only" style="margin-bottom:14px;" id="agent-tokens-card">
+        <div class="card-header">
+          <span class="card-title">AI Agent Tokens (MCP)</span>
+          <span class="badge badge-gray">Developer</span>
+        </div>
+        <div class="card-body">
+          <div style="display:flex;align-items:center;justify-content:space-between;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 14px;margin-bottom:10px;">
+            <div>
+              <div style="font-size:13px;font-weight:500;margin-bottom:2px;">Claude Code / Cursor (deploy_only)</div>
+              <div style="font-size:12px;color:var(--text-muted);">Used: $0.00 / Limit: $20.00</div>
+            </div>
+            <button class="btn btn-ghost btn-sm" onclick="showToast('Token revoked')" style="color: #EB001B;">Revoke</button>
+          </div>
+          <p style="font-size:12px;color:var(--text-muted);margin-top:10px;">
+            Scoped tokens for AI agents that never use your full account access. Generate them via the CLI: <br>
+            <code style="background:var(--bg);padding:2px 4px;border-radius:4px;border:1px solid var(--border);margin-top:6px;display:inline-block;">sovergrid agent create-token --scope=deploy_only --limit=20</code>
+          </p>
+        </div>
+      </div>
+
+      <!-- Notifications -->
+      <div class="card" style="margin-bottom:14px;">
+        <div class="card-header"><span class="card-title">Notifications</span></div>
+        <div class="card-body" style="padding:4px 20px;">
+          <div class="toggle-row">
+            <div><div class="toggle-label-title">Low balance alert</div><div class="toggle-label-desc">Email me when my balance falls below $20</div></div>
+            <label class="sg-toggle"><input type="checkbox" checked><span class="sg-track"></span><span class="sg-thumb"></span></label>
+          </div>
+          <div class="toggle-row">
+            <div><div class="toggle-label-title">App goes down</div><div class="toggle-label-desc">Email me if one of my apps stops responding</div></div>
+            <label class="sg-toggle"><input type="checkbox" checked><span class="sg-track"></span><span class="sg-thumb"></span></label>
+          </div>
+          <div class="toggle-row dev-only-flex" style="display:none; align-items:center; justify-content:space-between; padding:13px 0; border-bottom:1px solid var(--border);">
+            <div><div class="toggle-label-title">New API key usage</div><div class="toggle-label-desc">Notify me when an API key is used from a new IP</div></div>
+            <label class="sg-toggle"><input type="checkbox" checked><span class="sg-track"></span><span class="sg-thumb"></span></label>
+          </div>
+          <div class="toggle-row">
+            <div><div class="toggle-label-title">Monthly summary</div><div class="toggle-label-desc">Email me a monthly spend and uptime summary</div></div>
+            <label class="sg-toggle"><input type="checkbox"><span class="sg-track"></span><span class="sg-thumb"></span></label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Account Mode -->
+      <div class="card" style="margin-bottom:14px;">
+        <div class="card-header"><span class="card-title">Account Mode</span></div>
+        <div class="card-body">
+          
+          <!-- Consumer Mode Banner -->
+          <div class="cons-only">
+            <div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:14px;">
+              <div style="font-size:13px;font-weight:600;margin-bottom:3px;">You are on Consumer mode</div>
+              <div style="font-size:13px;color:var(--text-secondary);">You deploy apps through the dashboard with no coding required.</div>
+            </div>
+            <p style="font-size:13px;color:var(--text-secondary);margin-bottom:14px;">
+              Want to use the CLI, API keys, and technical controls? Switch to Developer mode. You can always switch back.
+            </p>
+            <div class="switch-role-card" onclick="switchToMode('developer')">
+              <div style="display:flex;align-items:center;gap:12px;">
+                <div style="width:36px;height:36px;background:var(--bg);border-radius:8px;display:flex;align-items:center;justify-content:center;">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+                </div>
+                <div>
+                  <div style="font-size:13.5px;font-weight:700;">Switch to Developer mode</div>
+                  <div style="font-size:12.5px;color:var(--text-muted);">Unlocks CLI, API keys, technical metrics, and advanced controls</div>
+                </div>
+              </div>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M9 18l6-6-6-6"/></svg>
+            </div>
+          </div>
+
+          <!-- Developer Mode Banner -->
+          <div class="dev-only">
+            <div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:14px;">
+              <div style="font-size:13px;font-weight:600;margin-bottom:3px;">You are on Developer mode</div>
+              <div style="font-size:13px;color:var(--text-secondary);">You have access to API keys, CLI, technical metrics, container controls, and the full developer console.</div>
+            </div>
+            <p style="font-size:13px;color:var(--text-secondary);margin-bottom:14px;">
+              Want a simpler view? Switch to Consumer mode. Your deployments will stay running — you will just see a simpler dashboard.
+            </p>
+            <div class="switch-role-card" onclick="switchToMode('consumer')">
+              <div style="display:flex;align-items:center;gap:12px;">
+                <div style="width:36px;height:36px;background:var(--bg);border-radius:8px;display:flex;align-items:center;justify-content:center;">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+                </div>
+                <div>
+                  <div style="font-size:13.5px;font-weight:700;">Switch to Consumer mode</div>
+                  <div style="font-size:12.5px;color:var(--text-muted);">Simple app dashboard, no CLI or API key controls</div>
+                </div>
+              </div>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M9 18l6-6-6-6"/></svg>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Danger zone -->
+      <div class="card" style="border-color:#FECACA;">
+        <div class="card-header" style="border-color:#FECACA;">
+          <span class="card-title" style="color:var(--red-text);">Danger Zone</span>
+        </div>
+        <div class="card-body">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+            <div>
+              <div style="font-size:13.5px;font-weight:500;margin-bottom:2px;">Delete account</div>
+              <div style="font-size:13px;color:var(--text-secondary);">Stops all apps and permanently deletes your account.</div>
+            </div>
+            <button class="btn btn-danger btn-sm" style="flex-shrink:0;margin-left:20px;" onclick="showToast('Confirmation email sent')">Delete account</button>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;">
+            <div>
+              <div style="font-size:13.5px;font-weight:500;margin-bottom:2px;">Sign out</div>
+            </div>
+            <a href="login.html" class="btn btn-secondary btn-sm" style="flex-shrink:0;margin-left:20px;">Sign out</a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div class="toast-container" id="toasts"></div>
+<script>
+function switchToMode(newMode) {
+  if (newMode === 'developer') {
+    if (confirm('Switch to Developer mode? You will be taken to the developer console.')) {
+      localStorage.setItem('sg_mode', 'developer');
+      window.location.href = 'developer.html';
+    }
+  } else {
+    if (confirm('Switch to Consumer mode?\n\nYour deployments keep running. You can switch back anytime in Settings.')) {
+      localStorage.setItem('sg_mode', 'consumer');
+      window.location.href = 'deployments.html';
+    }
+  }
+}
+
+function showToast(msg) {
+  const t = document.createElement('div');
+  t.className = 'toast'; t.textContent = msg;
+  document.getElementById('toasts').appendChild(t);
+  setTimeout(() => t.remove(), 3200);
+}
+</script>
+<script>window.SG_ACTIVE_PAGE = 'settings';</script>
+<script src="sg-nav.js"></script>
+</body>
+</html>

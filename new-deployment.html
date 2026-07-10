@@ -1,0 +1,1206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>New Deployment — SoverGrid</title>
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root { --sidebar-width: 236px; }
+    .sidebar.collapsed .sidebar-user-info { display:none; }
+    .sidebar.collapsed .sidebar-user { justify-content:center; padding:10px 0; }
+
+    /* Wizard */
+    .wizard-steps { display:flex; align-items:center; gap:0; margin-bottom:32px; }
+    .wstep { display:flex; align-items:center; gap:8px; flex:1; }
+    .wstep:last-child { flex:none; }
+    .wstep-num {
+      width:28px; height:28px; border-radius:50%; border:2px solid #DDDDD8;
+      display:flex; align-items:center; justify-content:center;
+      font-size:12px; font-weight:700; color:#AAAAAA; flex-shrink:0; transition:all .2s;
+    }
+    .wstep.active .wstep-num { border-color:#7C3AED; background:#7C3AED; color:#fff; }
+    .wstep.done .wstep-num   { border-color:#22C55E; background:#22C55E; color:#fff; }
+    .wstep-label { font-size:13px; font-weight:500; color:#AAAAAA; white-space:nowrap; }
+    .wstep.active .wstep-label { color:#111; font-weight:700; }
+    .wstep.done .wstep-label   { color:#22C55E; }
+    .wstep-line { flex:1; height:1px; background:#EBEBEB; margin:0 8px; }
+
+    /* Provider cards */
+    .provider-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    .provider-card {
+      border:2px solid #EBEBEB; border-radius:12px; padding:18px;
+      cursor:pointer; transition:border-color .15s, background .15s;
+      position:relative;
+    }
+    .provider-card:hover:not(.disabled) { border-color:#7C3AED; }
+    .provider-card.selected { border-color: var(--accent); background: var(--accent-gradient); }
+    .provider-card.selected * { color: #fff !important; border-color: rgba(255,255,255,0.3) !important; background: transparent !important; }
+    .provider-card.disabled { opacity:0.5; cursor:not-allowed; }
+    .provider-badge { position:absolute; top:10px; right:10px; font-size:10.5px; font-weight:700; border-radius:4px; padding:2px 7px; }
+    .provider-name { font-size:15px; font-weight:800; margin-bottom:4px; letter-spacing:-0.3px; }
+    .provider-type { font-size:12px; color:#AAAAAA; margin-bottom:12px; }
+    .provider-price { font-size:18px; font-weight:800; color:#111; letter-spacing:-0.5px; }
+    .provider-price span { font-size:12.5px; font-weight:500; color:#AAAAAA; }
+    .provider-tags { display:flex; gap:6px; margin-top:10px; flex-wrap:wrap; }
+    .provider-tag { font-size:11px; background:#F8F7F4; border:1px solid #EBEBEB; border-radius:4px; padding:2px 7px; color:#6B6B6B; }
+
+    /* App type */
+    .app-type-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(210px, 1fr)); gap:16px; }
+    .app-type-card {
+      border:2px solid #EBEBEB; border-radius:10px; padding:14px; text-align:center;
+      cursor:pointer; transition:border-color .15s, background .15s;
+    }
+    .app-type-card:hover { border-color:#7C3AED; }
+    .app-type-card.selected { border-color:#7C3AED; background:#F5F3FF; }
+    .app-type-icon { display:flex; align-items:center; justify-content:center; margin-bottom:8px; }
+    .app-type-name { font-size:13px; font-weight:700; }
+    .app-type-desc { font-size:11.5px; color:#AAAAAA; margin-top:3px; }
+
+    /* Container count */
+    .container-btns { display:flex; gap:8px; flex-wrap:wrap; }
+    .cnt-btn {
+      border:2px solid #EBEBEB; border-radius:8px; padding:10px 16px;
+      cursor:pointer; font-size:13.5px; font-weight:700; background:#fff;
+      transition:border-color .15s, background .15s; font-family:inherit;
+      display:flex; flex-direction:column; align-items:center; gap:2px;
+    }
+    .cnt-btn:hover { border-color:#7C3AED; }
+    .cnt-btn.selected { border-color:#7C3AED; background:#F5F3FF; }
+    .cnt-btn-sub { font-size:11px; font-weight:500; color:#AAAAAA; }
+
+    /* Review */
+    .review-row { display:flex; justify-content:space-between; padding:11px 0; border-bottom:1px solid #EBEBEB; font-size:13.5px; }
+    .review-row:last-child { border-bottom:none; }
+    .review-label { color:#6B6B6B; }
+    .review-val { font-weight:600; }
+
+    /* Cost confirmation */
+    .cost-confirm { background:#FAFAF8; border:1.5px solid #EBEBEB; border-radius:12px; padding:20px; margin-bottom:16px; }
+    .cost-confirm-title { font-size:14px; font-weight:700; margin-bottom:14px; }
+    .cost-line { display:flex; justify-content:space-between; font-size:13.5px; padding:6px 0; }
+    .cost-total { display:flex; justify-content:space-between; font-size:15px; font-weight:800; padding:12px 0 0; border-top:2px solid #EBEBEB; margin-top:4px; }
+
+    /* Balance warning */
+    .balance-ok  { background:#F0FDF4; border:1px solid #BBF7D0; border-radius:9px; padding:12px 14px; font-size:13px; color:#15803D; margin-bottom:14px; }
+    .balance-warn{ background:#FFFBEB; border:1px solid #FDE68A; border-radius:9px; padding:12px 14px; font-size:13px; color:#92400E; margin-bottom:14px; }
+
+    /* Deploy animation */
+    .deploy-progress { display:none; }
+    .deploy-log { font-family:'JetBrains Mono',monospace; font-size:12.5px; background:#111; border-radius:10px; padding:16px 18px; margin-top:14px; }
+    .log-line { color:#888; margin-bottom:4px; display:flex; gap:8px; }
+    .log-line.done { color:#22C55E; }
+    .log-line.active { color:#fff; }
+    .log-dot { opacity:0.5; }
+
+    /* Wizard step panels */
+    .wizard-panel { display:none; }
+    .wizard-panel.active { display:block; }
+
+    .wizard-actions { display:flex; gap:10px; margin-top:24px; align-items:center; }
+  </style>
+</head>
+<body>
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-top">
+      <div class="sidebar-logo-wrap">
+        <div class="sidebar-logo-icon" id="logo-icon">
+          <svg viewBox="0 0 30 30" fill="none" width="26" height="26">
+            <circle cx="15" cy="4"  r="3.5" fill="#7C3AED"/>
+            <circle cx="4"  cy="25" r="2.8" fill="#111"/>
+            <circle cx="26" cy="25" r="2.8" fill="#111"/>
+            <circle cx="15" cy="16" r="2.8" fill="#111"/>
+            <line x1="15" y1="4"  x2="4"  y2="25" stroke="#7C3AED" stroke-width="1.3" opacity="0.7"/>
+            <line x1="15" y1="4"  x2="26" y2="25" stroke="#7C3AED" stroke-width="1.3" opacity="0.7"/>
+            <line x1="4"  y1="25" x2="26" y2="25" stroke="#888" stroke-width="1.3"/>
+            <line x1="15" y1="4"  x2="15" y2="16" stroke="#7C3AED" stroke-width="1.3"/>
+            <line x1="4"  y1="25" x2="15" y2="16" stroke="#888" stroke-width="1.3"/>
+            <line x1="26" y1="25" x2="15" y2="16" stroke="#888" stroke-width="1.3"/>
+          </svg>
+        </div>
+        <span class="sidebar-logo-text">sovergrid</span>
+      </div>
+      <button class="sidebar-toggle" id="sidebar-toggle-btn" onclick="toggleSidebar()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+    </div>
+    <nav class="sidebar-nav" id="sidebar-nav"></nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="sidebar-avatar">JO</div>
+        <div class="sidebar-user-info">
+          <div class="sidebar-user-name">Joel Oyewole</div>
+          <div class="sidebar-user-plan" id="mode-label"></div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="page-header">
+      <span class="page-title">New Deployment</span>
+      <div style="display:flex;gap:10px;">
+        <div style="background:#F8F7F4;border:1px solid #EBEBEB;border-radius:8px;padding:6px 12px;font-size:13px;">
+          Balance: <strong id="balance-display">$142.50</strong>
+        </div>
+        <a href="javascript:history.back()" class="btn btn-ghost btn-sm">Cancel</a>
+      </div>
+    </div>
+
+    <div class="content" style="max-width:720px;">
+
+      <div class="wizard-steps">
+        <div class="wstep active" id="wstep-1">
+          <div class="wstep-num">1</div>
+          <div class="wstep-label">App Type</div>
+        </div>
+        <div class="wstep-line"></div>
+        <div class="wstep" id="wstep-2">
+          <div class="wstep-num">2</div>
+          <div class="wstep-label">Source</div>
+        </div>
+        <div class="wstep-line"></div>
+        <div class="wstep" id="wstep-3">
+          <div class="wstep-num">3</div>
+          <div class="wstep-label">Provider</div>
+        </div>
+        <div class="wstep-line"></div>
+        <div class="wstep" id="wstep-4">
+          <div class="wstep-num">4</div>
+          <div class="wstep-label">Configure</div>
+        </div>
+        <div class="wstep-line"></div>
+        <div class="wstep" id="wstep-5">
+          <div class="wstep-num">5</div>
+          <div class="wstep-label">Deploy</div>
+        </div>
+      </div>
+
+      <!-- ── Step 1: App type ── -->
+      <div class="wizard-panel active" id="panel-1">
+        <div class="card">
+          <div class="card-header"><span class="card-title">What are you deploying?</span></div>
+          <div class="card-body">
+            <div class="app-type-grid" id="app-type-grid">
+              <div class="app-type-card" onclick="selectAppType('frontend','Frontend')">
+                <div class="app-type-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></div>
+                <div class="app-type-name">Frontend</div>
+                <div class="app-type-desc">React, Vue, Next.js, static site</div>
+              </div>
+              <div class="app-type-card" onclick="selectAppType('backend','Backend')">
+                <div class="app-type-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 6h8M8 10h8M8 14h4"/></svg></div>
+                <div class="app-type-name">Backend API</div>
+                <div class="app-type-desc">FastAPI, Express, Django, Go</div>
+              </div>
+              <div class="app-type-card" onclick="selectAppType('fullstack','Full-Stack')">
+                <div class="app-type-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg></div>
+                <div class="app-type-name">Full-Stack App</div>
+                <div class="app-type-desc">Frontend + backend together</div>
+              </div>
+              <div class="app-type-card" onclick="selectAppType('static','Static Site')">
+                <div class="app-type-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/></svg></div>
+                <div class="app-type-name">Static Site</div>
+                <div class="app-type-desc">HTML, docs, portfolio</div>
+              </div>
+              <div class="app-type-card" onclick="selectAppType('worker','Background Worker')">
+                <div class="app-type-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg></div>
+                <div class="app-type-name">Background Worker</div>
+                <div class="app-type-desc">Cron jobs, queue processors</div>
+              </div>
+              <div class="app-type-card" onclick="selectAppType('custom','Custom Docker')">
+                <div class="app-type-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-4 0v2M8 7V5a2 2 0 0 0-4 0v2M20 12H4"/></svg></div>
+                <div class="app-type-name">Custom Docker</div>
+                <div class="app-type-desc">Any Dockerfile or image</div>
+              </div>
+              <div class="app-type-card" onclick="selectAppType('ml','Algorithm Training')">
+                <div class="app-type-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg></div>
+                <div class="app-type-name">Algorithm Training</div>
+                <div class="app-type-desc">AI / ML workloads (GPU)</div>
+              </div>
+              <div class="app-type-card" onclick="selectAppType('storage','Decentralized Storage')">
+                <div class="app-type-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg></div>
+                <div class="app-type-name">Decentralized Storage</div>
+                <div class="app-type-desc">Files, IPFS, Arweave</div>
+              </div>
+              <div class="app-type-card" onclick="selectAppType('database','Decentralized Database')">
+                <div class="app-type-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg></div>
+                <div class="app-type-name">Decentralized Database</div>
+                <div class="app-type-desc">Kwil SQL, Tableland</div>
+              </div>
+              <div class="app-type-card" onclick="selectAppType('security','Web3 Security')">
+                <div class="app-type-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
+                <div class="app-type-name">Web3 Security</div>
+                <div class="app-type-desc">Lit Protocol, KMS, Encryption</div>
+              </div>
+              <div class="app-type-card" onclick="selectAppType('token','Token Deployment')">
+                <div class="app-type-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24"><circle cx="12" cy="12" r="8"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg></div>
+                <div class="app-type-name">Token Deployment</div>
+                <div class="app-type-desc">Deploy ERC-20 Tokens</div>
+              </div>
+            </div>
+
+            <!-- App name -->
+            <div style="margin-top:20px;">
+              <label class="form-label" style="font-size:12.5px;font-weight:600;color:#444;display:block;margin-bottom:6px;">App name</label>
+              <input class="form-input" id="app-name" type="text" placeholder="my-app" style="max-width:340px;">
+            </div>
+
+            <!-- Full-stack note -->
+            <div id="fullstack-note" style="display:none;margin-top:14px;background:#F5F3FF;border:1px solid #DDD6FE;border-radius:9px;padding:12px 14px;font-size:13px;color:#5B21B6;">
+              <strong>Full-Stack deploy:</strong> Your frontend and backend will deploy simultaneously to separate providers — frontend to Spheron (edge CDN) and backend to Akash (compute). Both spin up at the same time and are linked automatically.
+            </div>
+          </div>
+        </div>
+        <div class="wizard-actions">
+          <button class="btn btn-primary" onclick="goToStep(2)">Choose Source →</button>
+        </div>
+      </div>
+
+      <!-- ── Step 3: Provider ── -->
+      <div class="wizard-panel" id="panel-3">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Choose a provider</span>
+            <span style="font-size:12.5px;color:#AAAAAA;">Prices update in real time from each network</span>
+          </div>
+          <div class="card-body">
+            <div class="provider-grid" id="main-provider-grid">
+
+              <!-- Akash -->
+              <div class="provider-card" id="prov-akash" onclick="selectProvider('akash','Akash',0.003,'Compute')">
+                <span class="provider-badge" style="background:#F0FDF4;color:#15803D;">✓ Live</span>
+                <div class="provider-name">Akash</div>
+                <div class="provider-type">Decentralized compute</div>
+                <div class="provider-price">$0.003 <span>/ container / hr</span></div>
+                <div class="provider-tags">
+                  <span class="provider-tag">CPU</span>
+                  <span class="provider-tag">GPU</span>
+                  <span class="provider-tag">Docker</span>
+                </div>
+              </div>
+
+              <!-- Spheron -->
+              <div class="provider-card" id="prov-spheron" onclick="selectProvider('spheron','Spheron',0.002,'Compute')">
+                <span class="provider-badge" style="background:#F0FDF4;color:#15803D;">✓ Live</span>
+                <div class="provider-name">Spheron</div>
+                <div class="provider-type">Edge CDN + GPU</div>
+                <div class="provider-price">$0.002 <span>/ container / hr</span></div>
+                <div class="provider-tags">
+                  <span class="provider-tag">CDN</span>
+                  <span class="provider-tag">Frontend</span>
+                </div>
+              </div>
+
+              <!-- 4everland -->
+              <div class="provider-card" id="prov-4everland" onclick="selectProvider('4everland','4EVERLAND',0.001,'Storage + Hosting')">
+                <span class="provider-badge" style="background:#F0FDF4;color:#15803D;">✓ Live</span>
+                <div class="provider-name">4EVERLAND</div>
+                <div class="provider-type">Decentralized hosting</div>
+                <div class="provider-price">$0.001 <span>/ container / hr</span></div>
+                <div class="provider-tags">
+                  <span class="provider-tag">IPFS</span>
+                  <span class="provider-tag">Static</span>
+                </div>
+              </div>
+
+              <!-- Arweave -->
+              <div class="provider-card" id="prov-arweave" onclick="selectProvider('arweave','Arweave',0.005,'Storage')">
+                <span class="provider-badge" style="background:#F0FDF4;color:#15803D;">✓ Live</span>
+                <div class="provider-name">Arweave</div>
+                <div class="provider-type">Permanent storage</div>
+                <div class="provider-price">$0.005 <span>/ GB / once</span></div>
+                <div class="provider-tags">
+                  <span class="provider-tag">Files</span>
+                  <span class="provider-tag">Permanent</span>
+                </div>
+              </div>
+
+              <!-- Kwil -->
+              <div class="provider-card" id="prov-kwil" onclick="selectProvider('kwil','Kwil',0.002,'Database')">
+                <span class="provider-badge" style="background:#F0FDF4;color:#15803D;">✓ Live</span>
+                <div class="provider-name">Kwil</div>
+                <div class="provider-type">Decentralized SQL DB</div>
+                <div class="provider-price">$0.002 <span>/ txn</span></div>
+                <div class="provider-tags">
+                  <span class="provider-tag">SQL</span>
+                  <span class="provider-tag">Relational</span>
+                </div>
+              </div>
+
+              <!-- Tableland -->
+              <div class="provider-card" id="prov-tableland" onclick="selectProvider('tableland','Tableland',0.002,'Database')">
+                <span class="provider-badge" style="background:#F0FDF4;color:#15803D;">✓ Live</span>
+                <div class="provider-name">Tableland</div>
+                <div class="provider-type">On-chain Database</div>
+                <div class="provider-price">$0.002 <span>/ txn</span></div>
+                <div class="provider-tags">
+                  <span class="provider-tag">SQL</span>
+                  <span class="provider-tag">Smart Contracts</span>
+                </div>
+              </div>
+
+              <!-- Bittensor -->
+              <div class="provider-card" id="prov-bittensor" onclick="selectProvider('bittensor','Bittensor',0.500,'AI/ML')">
+                <span class="provider-badge" style="background:#F0FDF4;color:#15803D;">✓ Live</span>
+                <div class="provider-name">Bittensor</div>
+                <div class="provider-type">AI/ML Subnets</div>
+                <div class="provider-price">$0.500 <span>/ hr</span></div>
+                <div class="provider-tags">
+                  <span class="provider-tag">AI Models</span>
+                  <span class="provider-tag">Training</span>
+                </div>
+              </div>
+
+              <!-- io.net -->
+              <div class="provider-card" id="prov-ionet" onclick="selectProvider('ionet','io.net',0.400,'AI/ML')">
+                <span class="provider-badge" style="background:#F0FDF4;color:#15803D;">✓ Live</span>
+                <div class="provider-name">io.net</div>
+                <div class="provider-type">Decentralized GPU</div>
+                <div class="provider-price">$0.400 <span>/ hr</span></div>
+                <div class="provider-tags">
+                  <span class="provider-tag">AI/ML</span>
+                  <span class="provider-tag">GPU Clusters</span>
+                </div>
+              </div>
+
+              <!-- Lit Protocol -->
+              <div class="provider-card" id="prov-lit" onclick="selectProvider('lit','Lit Protocol',0.001,'Security')">
+                <span class="provider-badge" style="background:#F0FDF4;color:#15803D;">✓ Live</span>
+                <div class="provider-name">Lit Protocol</div>
+                <div class="provider-type">Decentralized KMS</div>
+                <div class="provider-price">$0.001 <span>/ txn</span></div>
+                <div class="provider-tags">
+                  <span class="provider-tag">Security</span>
+                  <span class="provider-tag">Encryption</span>
+                </div>
+              </div>
+
+              <!-- Filecoin -->
+              <div class="provider-card" id="prov-filecoin" onclick="selectProvider('filecoin','Filecoin',0.0008,'Storage')" style="opacity:0.6; cursor:not-allowed;">
+                <span class="provider-badge" style="background:#EFF6FF;color:#1D4ED8;">Coming soon</span>
+                <div class="provider-name">Filecoin</div>
+                <div class="provider-type">Decentralized storage (Sub)</div>
+                <div class="provider-price">$20 <span>/ month</span></div>
+                <div class="provider-tags">
+                  <span class="provider-tag">Subscription</span>
+                  <span class="provider-tag">Storage</span>
+                </div>
+              </div>
+
+              <!-- Pinata -->
+              <div class="provider-card" id="prov-pinata" onclick="selectProvider('pinata','Pinata',0.001,'Storage')" style="opacity:0.6; cursor:not-allowed;">
+                <span class="provider-badge" style="background:#EFF6FF;color:#1D4ED8;">Coming soon</span>
+                <div class="provider-name">Pinata</div>
+                <div class="provider-type">IPFS Storage (Sub)</div>
+                <div class="provider-price">$20 <span>/ month</span></div>
+                <div class="provider-tags">
+                  <span class="provider-tag">Subscription</span>
+                  <span class="provider-tag">IPFS</span>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Upload Info Display -->
+            <div id="provider-upload-info" style="display:none; margin-top:20px; padding:12px; background:#F0FDF4; border:1px solid #BBF7D0; border-radius:8px; font-size:13px; color:#15803D;"></div>
+          </div>
+        </div>
+        <div class="wizard-actions">
+          <button class="btn btn-ghost btn-sm" onclick="goToStep(2)">← Back</button>
+          <button class="btn btn-primary" onclick="goToStep(4)">Configure →</button>
+        </div>
+      </div>
+
+      <!-- ── Step 2: Source ── -->
+      <div class="wizard-panel" id="panel-2">
+        <div class="card">
+          <div class="card-header"><span class="card-title">Connect Source Repository</span></div>
+          <div class="card-body">
+            <!-- Source: GitHub Connect Mock -->
+            <div style="margin-bottom:20px;" id="gh-connect-section">
+              <label class="form-label" style="font-size:12.5px;font-weight:600;color:#444;display:block;margin-bottom:6px;">GitHub Connection</label>
+              <button class="btn btn-ghost" id="connect-gh-btn" onclick="mockGithubConnect()" style="border:1.5px solid #7C3AED;color:#7C3AED;width:100%;max-width:300px;display:flex;justify-content:center;gap:8px;">
+                <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
+                Connect GitHub
+              </button>
+              <div id="gh-loading" style="display:none;margin-top:10px;font-size:12.5px;color:#888;">Connecting to GitHub...</div>
+            </div>
+
+            <!-- Repo Pickers (Hidden until connected) -->
+            <div id="repo-selection-section" style="display:none;">
+              
+              <!-- Primary Repo (Frontend/Backend) -->
+              <div class="repo-picker" id="primary-repo-picker" style="margin-bottom:20px;padding:16px;border:1px solid #EBEBEB;border-radius:12px;background:#FAFAFA;">
+                <label class="form-label" id="primary-repo-label" style="font-size:12.5px;font-weight:700;color:#444;display:block;margin-bottom:10px;">Select Repository</label>
+                <select class="form-input" id="primary-repo-select" onchange="onRepoSelect(this.value, 'primary')" style="margin-bottom:12px;max-width:400px;font-family:monospace;font-size:13px;">
+                  <option value="" disabled selected>Loading repositories...</option>
+                </select>
+                <div id="primary-branch-row" style="display:none;">
+                  <label class="form-label" style="font-size:12px;font-weight:600;color:#666;display:block;margin-bottom:6px;">Branch</label>
+                  <select class="form-input" id="primary-branch-select" style="max-width:200px;font-family:monospace;font-size:13px;">
+                    <option value="main">main</option>
+                    <option value="staging">staging</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Secondary Repo (For Full-stack only) -->
+              <div class="repo-picker" id="secondary-repo-picker" style="display:none;margin-bottom:20px;padding:16px;border:1px solid #EBEBEB;border-radius:12px;background:#FAFAFA;">
+                <label class="form-label" style="font-size:12.5px;font-weight:700;color:#444;display:block;margin-bottom:10px;">Backend API Repository</label>
+                <select class="form-input" id="secondary-repo-select" onchange="onRepoSelect(this.value, 'secondary')" style="margin-bottom:12px;max-width:400px;font-family:monospace;font-size:13px;">
+                  <option value="" disabled selected>Loading repositories...</option>
+                </select>
+                <div id="secondary-branch-row" style="display:none;">
+                  <label class="form-label" style="font-size:12px;font-weight:600;color:#666;display:block;margin-bottom:6px;">Branch</label>
+                  <select class="form-input" id="secondary-branch-select" style="max-width:200px;font-family:monospace;font-size:13px;">
+                    <option value="main">main</option>
+                    <option value="staging">staging</option>
+                  </select>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+        <div class="wizard-actions">
+          <button class="btn btn-ghost btn-sm" onclick="goToStep(1)">← Back</button>
+          <button class="btn btn-primary" id="btn-to-step-3" onclick="goToStep(3)" disabled style="opacity:0.5;">Choose Provider →</button>
+        </div>
+      </div>
+
+      <!-- ── Step 4: Pre-flight & Variables ── -->
+      <div class="wizard-panel" id="panel-4">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Pre-flight Check &amp; Environment Variables</span>
+            <span style="font-size:12.5px;color:#AAAAAA;display:block;margin-top:4px;">We'll run a dry-run build to verify dependencies and env variables before charging you.</span>
+          </div>
+          <div class="card-body">
+            
+            <div id="env-vars-container" style="margin-bottom:24px;">
+              <div style="font-size:13px;font-weight:600;color:#444;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;">
+                <span>Environment Variables</span>
+                <button class="btn btn-ghost btn-sm" onclick="addEnvRow()" style="font-size:11px;padding:4px 8px;border:1px solid #EBEBEB;border-radius:4px;">+ Add Variable</button>
+              </div>
+              
+              <div style="margin-bottom:12px; font-size:12px; color:#B45309; background:#FEF3C7; padding:10px 14px; border:1px solid #FDE68A; border-radius:6px; display:flex; align-items:flex-start; gap:8px;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0; margin-top:1px;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                <span><strong>Warning:</strong> If you make a mistake in your environment variables, the deployment will fail and you will need to trigger a full redeploy. Please double-check your keys and values.</span>
+              </div>
+              
+              <div style="background:#FAFAFA;border:1px solid #EBEBEB;border-radius:8px;padding:16px;">
+                <div id="env-rows-wrapper">
+                  <!-- JS will dynamically add rows here -->
+                </div>
+                <div id="fullstack-env-note" style="display:none;margin-top:16px;font-size:12px;color:#7C3AED;background:#F5F3FF;padding:10px;border-radius:6px;">
+                  <strong>Note:</strong> NEXT_PUBLIC_API_URL will be automatically injected from your backend deployment.
+                </div>
+              </div>
+            </div>
+
+            <button class="btn btn-primary" id="run-preflight-btn" onclick="runPreflightMock()" style="background:#444;width:100%;display:flex;justify-content:center;">Run Pre-flight Check</button>
+
+            <!-- Pre-flight Results -->
+            <div id="preflight-results" style="display:none;margin-top:20px;border:1px solid #EBEBEB;border-radius:8px;overflow:hidden;">
+              <div style="background:#F9F9F9;padding:10px 14px;border-bottom:1px solid #EBEBEB;font-size:13px;font-weight:600;display:flex;justify-content:space-between;align-items:center;">
+                <span>Pre-flight Status</span>
+                <span id="pf-status-badge" style="background:#F0FDF4;color:#15803D;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:700;">PASSED</span>
+              </div>
+              <div style="padding:14px;font-size:13px;font-family:monospace;color:#333;">
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+                  <span style="color:#22C55E;font-weight:700;">[OK]</span>
+                  <span>Scanned repository root... found package.json</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+                  <span style="color:#22C55E;font-weight:700;">[OK]</span>
+                  <span>Validated build script ("build": "next build")</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+                  <span style="color:#22C55E;font-weight:700;">[OK]</span>
+                  <span>Detected exposed port: 3000</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+                  <span style="color:#22C55E;font-weight:700;">[OK]</span>
+                  <span>Environment variables injected successfully</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+                  <span style="color:#22C55E;font-weight:700;">[OK]</span>
+                  <span>Codebase is ready for containerization</span>
+                </div>
+              </div>
+            </div>
+            
+            <div id="preflight-error" style="display:none;margin-top:20px;background:#FEF2F2;border:1px solid #FECACA;border-radius:8px;padding:12px;font-size:13px;color:#DC2626;">
+              <strong>Pre-flight failed:</strong> Missing required environment variables. No deployment fee will be charged.
+            </div>
+
+          </div>
+        </div>
+        <div class="wizard-actions">
+          <button class="btn btn-ghost btn-sm" onclick="goToStep(3)">← Back</button>
+          <button class="btn btn-primary" id="btn-to-step-5" onclick="goToStep(5)" disabled style="opacity:0.5;">Review &amp; Deploy →</button>
+        </div>
+      </div>
+
+      <!-- ── Step 5: Confirm + Cost check ── -->
+      <div class="wizard-panel" id="panel-5">
+
+        <!-- Cost confirmation box -->
+        <div class="cost-confirm">
+          <div class="cost-confirm-title">Payment Breakdown</div>
+          <div class="cost-line">
+            <span id="cost-containers-label">Provider Cost (1 container × $0.003/hr)</span>
+            <span id="cost-monthly" style="font-weight:600;color:#555;">$2.16/mo</span>
+          </div>
+          <div class="cost-line">
+            <span id="cost-deploy-label">SoverGrid Markup</span>
+            <span id="cost-deploy" style="font-weight:600;color:#555;">$5.00/mo</span>
+          </div>
+          <div class="cost-line" style="margin-top:12px; border-top:1px solid #E5E7EB; padding-top:12px;">
+            <span style="font-weight:700;color:#111;">Total Charged Now (and every 30 days)</span>
+            <span id="cost-total" style="font-weight:700;color:#111;">$7.16</span>
+          </div>
+          
+          <div class="cost-total" style="margin-top:20px;">
+            <span>Your vault balance</span>
+            <span id="cost-balance">$142.50</span>
+          </div>
+          <div id="balance-status" class="balance-ok" style="margin-top:12px;margin-bottom:0;">
+            Your balance covers approximately <strong id="months-covered">65 months</strong> of this deployment.
+          </div>
+        </div>
+
+        <!-- Review summary -->
+        <div class="card" style="margin-bottom:14px;">
+          <div class="card-header"><span class="card-title">Deployment summary</span></div>
+          <div class="card-body" style="padding-top:4px;padding-bottom:4px;">
+            <div class="review-row"><span class="review-label">App name</span><span class="review-val" id="rv-name">my-app</span></div>
+            <div class="review-row"><span class="review-label">App type</span><span class="review-val" id="rv-type">Frontend</span></div>
+            <div class="review-row"><span class="review-label">Provider</span><span class="review-val" id="rv-provider">Akash</span></div>
+            <div class="review-row"><span class="review-label">Source</span><span class="review-val" id="rv-source" style="font-family:'JetBrains Mono',monospace;font-size:12px;">—</span></div>
+          </div>
+        </div>
+
+        <!-- Deploy progress (shown after clicking Deploy) -->
+        <div class="deploy-progress" id="deploy-progress">
+          <div style="font-size:13.5px;font-weight:700;margin-bottom:10px;">Deploying...</div>
+          <div class="deploy-log">
+            <div class="log-line" id="log-1"><span class="log-dot">›</span> <span>Creating deployment sandbox</span></div>
+            <div class="log-line" id="log-2"><span class="log-dot">›</span> <span>Building container image</span></div>
+            <div class="log-line" id="log-3"><span class="log-dot">›</span> <span id="log-3-text">Provisioning on provider</span></div>
+            <div class="log-line" id="log-4"><span class="log-dot">›</span> <span>Running health checks</span></div>
+            <div class="log-line" id="log-5"><span class="log-dot">›</span> <span>Setting up domain</span></div>
+            <div class="log-line" id="log-6"><span class="log-dot">›</span> <span>Deployment complete — Charging $5.00</span></div>
+          </div>
+        </div>
+
+        <div class="wizard-actions" id="deploy-actions">
+          <button class="btn btn-ghost btn-sm" onclick="goToStep(4)">← Back</button>
+          <button class="btn btn-primary" id="deploy-btn" style="background:#7C3AED;" onclick="openConfirmModal()">
+            Deploy now
+          </button>
+          <span style="font-size:12.5px;color:#AAAAAA;">Balance is charged in real time as containers run</span>
+        </div>
+      </div>
+
+    </div><!-- /content -->
+  </div><!-- /main -->
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════════
+     PRE-DEPLOY MANDATORY CONFIRMATION MODAL
+     Three gates: cost acknowledgement checkbox + type app name + balance check
+     ALL three must pass before the deploy button activates.
+═══════════════════════════════════════════════════════════════════════════ -->
+<div id="confirm-modal-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:1000;display:none;align-items:center;justify-content:center;padding:20px;">
+  <div style="background:#fff;border-radius:16px;max-width:520px;width:100%;box-shadow:0 24px 64px rgba(0,0,0,.18);overflow:hidden;">
+
+    <!-- Header -->
+    <div style="background:#DC2626;padding:18px 24px;display:flex;align-items:center;gap:12px;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" width="22" height="22"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      <span style="font-size:16px;font-weight:800;color:#fff;letter-spacing:-.2px;">Confirm deployment &amp; billing</span>
+    </div>
+
+    <!-- Cost breakdown -->
+    <div style="padding:20px 24px 0;">
+      <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#AAAAAA;margin-bottom:10px;">Cost summary</div>
+      <div style="background:#FAFAF8;border:1.5px solid #EBEBEB;border-radius:10px;padding:14px 16px;">
+        <div style="display:flex;justify-content:space-between;font-size:13.5px;padding:5px 0;">
+          <span id="mc-containers">Provider Cost (1 container × $0.003/hr)</span>
+          <span id="mc-provider" style="font-weight:600;">$2.16/mo</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:13.5px;padding:5px 0;">
+          <span>SoverGrid Markup</span>
+          <span id="mc-markup" style="font-weight:600;">$5.00/mo</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:14.5px;font-weight:800;padding:10px 0 4px;border-top:1.5px solid #EBEBEB;margin-top:6px;">
+          <span>Total Charged Now (and every 30 days)</span>
+          <span id="mc-monthly">$7.16</span>
+        </div>
+      </div>
+
+      <!-- Balance status -->
+      <div id="mc-balance-warn" style="display:none;margin-top:10px;background:#FEF2F2;border:1px solid #FECACA;border-radius:8px;padding:12px 14px;">
+        <div style="font-size:13px;font-weight:700;color:#DC2626;margin-bottom:4px;">Insufficient balance</div>
+        <div style="font-size:12.5px;color:#7F1D1D;" id="mc-balance-msg"></div>
+        <a href="billing.html" style="display:inline-block;margin-top:8px;font-size:12.5px;font-weight:700;color:#DC2626;">Top up your balance →</a>
+      </div>
+    </div>
+
+    <!-- Gate 1: Billing checkbox -->
+    <div style="padding:16px 24px 0;">
+      <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;">
+        <input type="checkbox" id="mc-billing-check" onchange="checkModalGates()"
+          style="margin-top:2px;accent-color:#7C3AED;width:16px;height:16px;flex-shrink:0;">
+        <span style="font-size:13px;color:#333;line-height:1.5;">
+          I understand that <strong>my SoverGrid Vault will be charged in real time</strong> as containers run, starting immediately after deployment. Charges stop only when I delete or suspend the deployment.
+        </span>
+      </label>
+    </div>
+
+    <!-- Gate 2: Type app name to confirm -->
+    <div style="padding:14px 24px 0;">
+      <div style="font-size:12.5px;color:#555;margin-bottom:6px;">To confirm, type the app name: <strong id="mc-app-name-hint" style="color:#111;">my-app</strong></div>
+      <input type="text" id="mc-name-input" class="form-input" placeholder="Type app name here"
+        oninput="checkModalGates()" style="font-size:14px;">
+      <div id="mc-name-err" style="display:none;font-size:12px;color:#DC2626;margin-top:4px;">App name does not match</div>
+    </div>
+
+    <!-- Actions -->
+    <div style="padding:18px 24px;display:flex;gap:10px;justify-content:flex-end;border-top:1px solid #EBEBEB;margin-top:18px;">
+      <button class="btn btn-ghost" onclick="closeConfirmModal()" style="font-size:13.5px;">Cancel</button>
+      <button id="mc-confirm-btn" class="btn btn-primary" onclick="confirmedDeploy()"
+        disabled style="background:#7C3AED;opacity:.4;cursor:not-allowed;font-size:13.5px;">
+        I confirm — deploy now
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<div class="toast-container" id="toasts"></div>
+
+<script>
+// State
+let state = {
+  currentStep: 1,
+  appType: null,
+  appTypeLabel: null,
+  provider: null,
+  providerLabel: null,
+  pricePerHour: 0.003,
+  containers: 1,
+  balance: 142.50
+};
+
+// ── GitHub source detection ──────────────────────────────────────────────────
+let githubConnected = false;
+
+function mockGithubConnect() {
+  const btn = document.getElementById('connect-gh-btn');
+  const loader = document.getElementById('gh-loading');
+  btn.style.display = 'none';
+  loader.style.display = 'block';
+  
+  setTimeout(() => {
+    loader.style.display = 'none';
+    btn.style.display = 'flex';
+    btn.style.background = '#F0FDF4';
+    btn.style.borderColor = '#22C55E';
+    btn.style.color = '#15803D';
+    btn.innerHTML = `<svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg> Connected as @joel`;
+    btn.disabled = true;
+    githubConnected = true;
+    
+    // Populate mock repos
+    const repos = ['joel/frontend-app', 'joel/backend-api', 'joel/smart-contracts', 'joel/portfolio'];
+    const pSelect = document.getElementById('primary-repo-select');
+    const sSelect = document.getElementById('secondary-repo-select');
+    pSelect.innerHTML = '<option value="" disabled selected>Select a repository...</option>';
+    sSelect.innerHTML = '<option value="" disabled selected>Select a repository...</option>';
+    
+    repos.forEach(r => {
+      pSelect.innerHTML += `<option value="${r}">${r}</option>`;
+      sSelect.innerHTML += `<option value="${r}">${r}</option>`;
+    });
+
+    document.getElementById('repo-selection-section').style.display = 'block';
+    if (state.appType === 'fullstack') {
+      document.getElementById('secondary-repo-picker').style.display = 'block';
+    }
+  }, 800);
+}
+
+function onRepoSelect(val, type) {
+  if (type === 'primary') {
+    document.getElementById('primary-branch-row').style.display = 'block';
+    state.primaryRepo = val;
+  } else {
+    document.getElementById('secondary-branch-row').style.display = 'block';
+    state.secondaryRepo = val;
+  }
+  
+  const isFullstack = state.appType === 'fullstack';
+  if ((isFullstack && state.primaryRepo && state.secondaryRepo) || (!isFullstack && state.primaryRepo)) {
+    const nextBtn = document.getElementById('btn-to-step-3');
+    if (nextBtn) {
+      nextBtn.disabled = false;
+      nextBtn.style.opacity = '1';
+    }
+  }
+}
+
+function checkPreflightReady() {
+  const btn = document.getElementById('run-preflight-btn');
+  // Just enable the button, the actual validation happens in runPreflightMock
+  btn.disabled = false;
+  btn.style.opacity = '1';
+  btn.textContent = 'Run Pre-flight Check';
+}
+
+function runPreflightMock() {
+  const btn = document.getElementById('run-preflight-btn');
+  btn.disabled = true;
+  btn.textContent = 'Scanning repository and validating...';
+  
+  document.getElementById('preflight-results').style.display = 'none';
+  document.getElementById('preflight-error').style.display = 'none';
+
+  setTimeout(() => {
+    btn.style.display = 'none';
+    document.getElementById('preflight-results').style.display = 'block';
+    
+    const nextBtn = document.getElementById('btn-to-step-5');
+    if (nextBtn) {
+      nextBtn.disabled = false;
+      nextBtn.style.opacity = '1';
+    }
+  }, 1500);
+}
+
+function resetPreflight() {
+  const btn = document.getElementById('run-preflight-btn');
+  btn.style.display = 'flex';
+  btn.textContent = 'Run Pre-flight Check';
+  btn.disabled = false;
+  document.getElementById('preflight-error').style.display = 'none';
+}
+
+// ── Wizard ──
+function goToStep(n) {
+  if (n > state.currentStep + 1) return; // must go in order
+  // Update panels
+  for (let i = 1; i <= 5; i++) {
+    const panel = document.getElementById(`panel-${i}`);
+    const step  = document.getElementById(`wstep-${i}`);
+    if (panel) panel.classList.toggle('active', i === n);
+    if (step) {
+      step.classList.remove('active','done');
+      if (i < n) step.classList.add('done');
+      else if (i === n) step.classList.add('active');
+    }
+  }
+  state.currentStep = n;
+  
+  if (n === 3) {
+    const pMap = {
+      'frontend': ['spheron', '4everland'],
+      'backend': ['akash'],
+      'fullstack': ['spheron', '4everland', 'akash'], // Handled specially below
+      'static': ['spheron', '4everland', 'arweave'],
+      'worker': ['akash'],
+      'custom': ['akash', 'spheron'],
+      'ml': ['bittensor', 'ionet', 'akash'],
+      'storage': ['arweave', 'filecoin', 'pinata'],
+      'database': ['kwil', 'tableland'],
+      'security': ['lit'],
+      'token': ['akash']
+    };
+    const allowed = pMap[state.appType] || [];
+    
+    // Reset any fullstack UI
+    const fsContainer = document.getElementById('fullstack-split-ui');
+    if (fsContainer) fsContainer.style.display = 'none';
+    
+    document.querySelectorAll('.provider-card').forEach(card => {
+      const pid = card.id.replace('prov-', '');
+      if (allowed.includes(pid)) {
+        card.style.display = 'block';
+      } else {
+        card.style.display = 'none';
+      }
+    });
+
+    if (state.appType === 'fullstack') {
+      // Create separation UI if not exists
+      if (!document.getElementById('fullstack-split-ui')) {
+        const grid = document.getElementById('main-provider-grid');
+        const splitUi = document.createElement('div');
+        splitUi.id = 'fullstack-split-ui';
+        splitUi.innerHTML = `
+          <div style="font-size:13px; font-weight:700; color:#333; margin-bottom:12px;">Frontend Provider</div>
+          <div class="provider-grid" id="fs-front-grid"></div>
+          <div style="font-size:13px; font-weight:700; color:#333; margin-top:24px; margin-bottom:12px;">Backend Provider</div>
+          <div class="provider-grid" id="fs-back-grid"></div>
+        `;
+        grid.parentNode.insertBefore(splitUi, grid);
+      }
+      document.getElementById('fullstack-split-ui').style.display = 'block';
+      document.getElementById('main-provider-grid').style.display = 'none'; // hide main grid
+      
+      const frontGrid = document.getElementById('fs-front-grid');
+      const backGrid = document.getElementById('fs-back-grid');
+      frontGrid.innerHTML = '';
+      backGrid.innerHTML = '';
+      
+      // Clone cards for frontend
+      ['spheron', '4everland'].forEach(id => {
+        const orig = document.getElementById('prov-' + id);
+        if (orig) {
+          const clone = orig.cloneNode(true);
+          clone.id = 'fs-front-' + id;
+          clone.style.display = 'block';
+          clone.onclick = () => {
+            Array.from(frontGrid.children).forEach(c => c.classList.remove('selected'));
+            clone.classList.add('selected');
+            state.provider = id; // Or state.frontendProvider
+            state.pricePerHour = 0.005; // Base estimate for fullstack
+          };
+          frontGrid.appendChild(clone);
+        }
+      });
+      // Clone cards for backend
+      ['akash'].forEach(id => {
+        const orig = document.getElementById('prov-' + id);
+        if (orig) {
+          const clone = orig.cloneNode(true);
+          clone.id = 'fs-back-' + id;
+          clone.style.display = 'block';
+          clone.onclick = () => {
+            Array.from(backGrid.children).forEach(c => c.classList.remove('selected'));
+            clone.classList.add('selected');
+            state.backendProvider = id;
+            state.pricePerHour = 0.005;
+          };
+          backGrid.appendChild(clone);
+        }
+      });
+    } else {
+      document.getElementById('main-provider-grid').style.display = 'grid'; // show main grid
+    }
+  }
+
+  if (n === 4) {
+    // Show note about NEXT_PUBLIC_API_URL if fullstack
+    const fullstackNote = document.getElementById('fullstack-env-note');
+    if (fullstackNote) {
+      fullstackNote.style.display = (state.appType === 'fullstack') ? 'block' : 'none';
+    }
+    
+    if (window.lastEnvAppType !== state.appType) {
+      document.getElementById('env-rows-wrapper').innerHTML = '';
+      window.lastEnvAppType = state.appType;
+      addEnvRow(); // add at least 1 empty row
+    }
+  }
+  if (n === 5) buildReview();
+}
+
+function selectAppType(type, label) {
+  state.appType = type; state.appTypeLabel = label;
+  document.querySelectorAll('.app-type-card').forEach(c => c.classList.remove('selected'));
+  event.currentTarget.classList.add('selected');
+  document.getElementById('fullstack-note').style.display = (type === 'fullstack') ? 'block' : 'none';
+  
+  // Show/hide secondary repo picker based on app type if GitHub is connected
+  if (githubConnected) {
+    document.getElementById('secondary-repo-picker').style.display = (type === 'fullstack') ? 'block' : 'none';
+    if (type === 'fullstack') {
+      document.getElementById('primary-repo-label').textContent = 'Frontend Repository';
+    } else {
+      document.getElementById('primary-repo-label').textContent = 'Select Repository';
+    }
+  }
+}
+
+function selectProvider(id, label, price, type) {
+  if (id === 'filecoin' || id === 'pinata') { showToast(`Vote recorded for ${label}! We will prioritize this integration.`); return; }
+  state.provider = id; state.providerLabel = label; state.pricePerHour = price;
+  document.querySelectorAll('.provider-card').forEach(c => c.classList.remove('selected'));
+  document.getElementById(`prov-${id}`).classList.add('selected');
+  
+  const uploadInfo = document.getElementById('provider-upload-info');
+  if (uploadInfo) {
+    uploadInfo.innerHTML = getProviderUploadInfo(id);
+    uploadInfo.style.display = 'block';
+  }
+}
+
+function getProviderUploadInfo(id) {
+  const info = {
+    'akash': '<strong>Supported uploads:</strong> Docker images, Web apps (Node.js, Python), APIs. (GitHub repo will be compiled to Docker image and deployed automatically)',
+    'spheron': '<strong>Supported uploads:</strong> Frontend static builds (React, Next.js), Docker images. (GitHub repo will be compiled and previewed automatically)',
+    '4everland': '<strong>Supported uploads:</strong> Static Sites (HTML/CSS/JS), Next.js static exports, Single Page Apps. (GitHub repo will be compiled and pinned to IPFS automatically)',
+    'arweave': '<strong>Supported uploads:</strong> Immutable files, PDFs, Static assets (images, videos), permanent archives.',
+    'kwil': '<strong>Supported uploads:</strong> SQL schemas, Relational data, JSON records.',
+    'tableland': '<strong>Supported uploads:</strong> SQL schemas, Relational data, smart contract driven tables.',
+    'bittensor': '<strong>Supported uploads:</strong> Machine Learning models (PyTorch, TensorFlow), AI training scripts.',
+    'ionet': '<strong>Supported uploads:</strong> Machine Learning models, AI training scripts, GPU workloads.',
+    'lit': '<strong>Supported uploads:</strong> Encryption keys, Access control conditions, JWTs.'
+  };
+  return info[id] || '<strong>Supported uploads:</strong> Any compatible files.';
+}
+
+function selectContainers(n, el) {
+  state.containers = n;
+  document.querySelectorAll('.cnt-btn').forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
+  document.getElementById('ha-note').style.display = n >= 3 ? 'block' : 'none';
+}
+
+function addEnvRow() {
+  const wrapper = document.getElementById('env-rows-wrapper');
+  const row = document.createElement('div');
+  row.style.display = 'flex';
+  row.style.gap = '8px';
+  row.style.marginBottom = '8px';
+  row.className = 'env-var-row';
+  
+  let targetSelect = '';
+  if (state.appType === 'fullstack') {
+    targetSelect = `
+      <select class="form-input" style="flex:1; max-width:110px; font-size:12px; padding:4px 8px;">
+        <option value="frontend">Frontend</option>
+        <option value="backend">Backend</option>
+      </select>
+    `;
+  }
+  
+  row.innerHTML = `
+    ${targetSelect}
+    <input type="text" class="form-input" placeholder="KEY (e.g. API_KEY)" style="flex:1; font-family:monospace; font-size:12px;" oninput="checkPreflightReady()">
+    <input type="text" class="form-input" placeholder="VALUE" style="flex:2; font-family:monospace; font-size:12px;">
+    <button class="btn btn-ghost" onclick="this.parentElement.remove()" style="padding:4px 8px; color:#DC2626; border:1px solid #FECACA; border-radius:4px;">✕</button>
+  `;
+  wrapper.appendChild(row);
+  checkPreflightReady();
+}
+
+function buildReview() {
+  const name = document.getElementById('app-name').value || 'my-app';
+  const cpu  = document.getElementById('cpu-select').value;
+  const mem  = document.getElementById('mem-select').value;
+  let src = state.primaryRepo || '—';
+  if (state.appType === 'fullstack' && state.secondaryRepo) {
+    src += ` (Frontend) + ${state.secondaryRepo} (Backend)`;
+  }
+  const n    = state.containers || 1;
+  const ph   = state.pricePerHour || 0.003;
+  const total = ph * n;
+  const daily = total * 24;
+  const providerMonthly = daily * 30;
+  
+  // Calculate markup fee
+  const markupFee = (state.appType === 'static') ? 0.00 : 5.00;
+  const deployFeeEl = document.getElementById('cost-deploy');
+  if (deployFeeEl) deployFeeEl.textContent = `$${markupFee.toFixed(2)}/mo`;
+  
+  const totalMonthly = providerMonthly + markupFee;
+  
+  // If static site, total monthly cost could be 0 depending on the provider, but we use the selected provider's ph
+  // For ML, it's hourly. But we just use the selected provider rate for now.
+  const monthsCovered = totalMonthly > 0 ? Math.floor(state.balance / totalMonthly) : 999;
+
+  document.getElementById('rv-name').textContent = name;
+  document.getElementById('rv-type').textContent = state.appTypeLabel || '—';
+  
+  let providerDisplay = state.providerLabel || '—';
+  if (state.appType === 'fullstack') {
+    let fLabel = 'Spheron';
+    let bLabel = 'Akash';
+    if (state.provider) {
+       const frontEl = document.getElementById('fs-front-' + state.provider);
+       if (frontEl) fLabel = frontEl.querySelector('.provider-name').textContent;
+    }
+    if (state.backendProvider) {
+       const backEl = document.getElementById('fs-back-' + state.backendProvider);
+       if (backEl) bLabel = backEl.querySelector('.provider-name').textContent;
+    }
+    providerDisplay = `${fLabel} (Frontend) + ${bLabel} (Backend)`;
+  }
+  document.getElementById('rv-provider').textContent = providerDisplay;
+  document.getElementById('rv-source').textContent = src;
+
+  document.getElementById('cost-containers-label').textContent = `Provider Cost (${n} container${n>1?'s':''} × $${ph}/hr)`;
+  document.getElementById('cost-monthly').textContent = `$${providerMonthly.toFixed(2)}/mo`;
+  const costTotalEl = document.getElementById('cost-total');
+  if (costTotalEl) costTotalEl.textContent = `$${totalMonthly.toFixed(2)}`;
+  document.getElementById('cost-balance').textContent = `$${state.balance.toFixed(2)}`;
+  
+  const monthsEl = document.getElementById('months-covered');
+  if (monthsEl) monthsEl.textContent = `${monthsCovered > 900 ? 'unlimited' : monthsCovered} months`;
+
+  // Balance warning
+  const bstatus = document.getElementById('balance-status');
+  if (monthsCovered < 1) {
+    bstatus.className = 'balance-warn';
+    bstatus.innerHTML = `<strong>Low balance warning.</strong> Your balance may not cover a full month. <a href="billing.html" style="color:#92400E;font-weight:700;">Top up now →</a>`;
+  } else if (monthsCovered < 3) {
+    bstatus.className = 'balance-warn';
+    bstatus.innerHTML = `Your balance covers approximately <strong>${monthsCovered} months</strong>. Consider topping up. <a href="billing.html" style="color:#92400E;font-weight:700;">Add funds →</a>`;
+  } else {
+    bstatus.className = 'balance-ok';
+    bstatus.innerHTML = `Your balance covers approximately <strong>${monthsCovered} months</strong> of this deployment.`;
+  }
+}
+
+// ── Confirm modal ────────────────────────────────────────────────────────────
+function openConfirmModal() {
+  const n   = state.containers || 1;
+  const ph  = state.pricePerHour || 0.003;
+  const tot = ph * n;
+  const daily   = tot * 24;
+  const providerMonthly = daily * 30;
+  
+  const markupFee = (state.appType === 'static') ? 0.00 : 5.00;
+  const totalMonthly = providerMonthly + markupFee;
+  const bal     = state.balance;
+
+  // Populate modal cost figures
+  document.getElementById('mc-containers').textContent = `Provider Cost (${n} container${n>1?'s':''} × $${ph}/hr)`;
+  document.getElementById('mc-provider').textContent  = `$${providerMonthly.toFixed(2)}/mo`;
+  document.getElementById('mc-markup').textContent   = `$${markupFee.toFixed(2)}/mo`;
+  document.getElementById('mc-monthly').textContent = `$${totalMonthly.toFixed(2)}`;
+
+  // App name hint
+  const appName = document.getElementById('app-name').value.trim() || 'my-app';
+  document.getElementById('mc-app-name-hint').textContent = appName;
+
+  // Balance gate
+  const warnEl = document.getElementById('mc-balance-warn');
+  const msgEl  = document.getElementById('mc-balance-msg');
+  if (bal < totalMonthly) {
+    warnEl.style.display = 'block';
+    msgEl.textContent = `Your balance ($${bal.toFixed(2)}) is less than one month's estimated cost ($${totalMonthly.toFixed(2)}). Containers will stop if balance hits zero.`;
+  } else if (bal < totalMonthly * 3) {
+    warnEl.style.display = 'block';
+    msgEl.textContent = `Your balance ($${bal.toFixed(2)}) covers roughly ${Math.floor(bal/totalMonthly)} months. Consider topping up.`;
+  } else {
+    warnEl.style.display = 'none';
+  }
+
+  // Reset gates
+  document.getElementById('mc-billing-check').checked = false;
+  document.getElementById('mc-name-input').value = '';
+  document.getElementById('mc-name-err').style.display = 'none';
+  checkModalGates();
+
+  const overlay = document.getElementById('confirm-modal-overlay');
+  overlay.style.display = 'flex';
+}
+
+function closeConfirmModal() {
+  document.getElementById('confirm-modal-overlay').style.display = 'none';
+}
+
+function checkModalGates() {
+  const checked  = document.getElementById('mc-billing-check').checked;
+  const typed    = document.getElementById('mc-name-input').value.trim();
+  const appName  = document.getElementById('app-name').value.trim() || 'my-app';
+  const nameOk   = typed === appName;
+  const bal      = state.balance;
+  
+  const ph       = state.pricePerHour || 0.003;
+  const n        = state.containers || 1;
+  const providerMonthly = ph * n * 24 * 30;
+  const markupFee = (state.appType === 'static') ? 0.00 : 5.00;
+  const totalMonthly = providerMonthly + markupFee;
+  
+  // Hard block if balance is zero or negative
+  const balanceOk = bal > 0;
+
+  const errEl = document.getElementById('mc-name-err');
+  if (typed.length > 0 && !nameOk) {
+    errEl.style.display = 'block';
+  } else {
+    errEl.style.display = 'none';
+  }
+
+  const btn = document.getElementById('mc-confirm-btn');
+  const allGood = checked && nameOk && balanceOk;
+  btn.disabled = !allGood;
+  btn.style.opacity = allGood ? '1' : '0.4';
+  btn.style.cursor  = allGood ? 'pointer' : 'not-allowed';
+}
+
+function confirmedDeploy() {
+  closeConfirmModal();
+  startDeploy();
+}
+
+// ── Deploy animation ──
+function startDeploy() {
+  const btn = document.getElementById('deploy-btn');
+  if (btn) { btn.disabled = true; btn.textContent = 'Deploying...'; }
+
+  const providerLabel = state.providerLabel || 'Akash';
+  document.getElementById('log-3-text').textContent =
+    `Provisioning ${state.containers} container${state.containers>1?'s':''} on ${providerLabel}`;
+
+  document.getElementById('deploy-progress').style.display = 'block';
+
+  const logs   = ['log-1','log-2','log-3','log-4','log-5','log-6'];
+  const delays = [400, 1200, 2800, 4200, 5200, 6400];
+
+  logs.forEach((id, i) => {
+    setTimeout(() => {
+      if (i > 0) document.getElementById(logs[i-1]).classList.remove('active');
+      const el = document.getElementById(id);
+      el.classList.add('active');
+      if (i === logs.length - 1) {
+        el.classList.add('done');
+        
+        const appName = document.getElementById('app-name').value || 'my-app';
+        let domainStr = '4everland.app';
+        if (state.appType === 'backend' || state.appType === 'database' || state.appType === 'worker' || state.appType === 'ml') {
+            domainStr = 'akash.network/api';
+        }
+        const fullUrl = `https://${appName}.${domainStr}`;
+        
+        document.getElementById('deploy-actions').innerHTML = `
+          <div style="display:flex; flex-direction:column; gap:12px; width:100%;">
+            <div style="background:#F0FDF4; border:1px solid #BBF7D0; padding:16px; border-radius:8px; display:flex; align-items:center; justify-content:space-between;">
+                <div>
+                  <div style="font-size:12px; font-weight:700; color:#15803D; margin-bottom:4px; text-transform:uppercase; letter-spacing:0.5px;">Deployed Successfully</div>
+                  <a href="javascript:void(0)" style="font-size:14px; font-weight:600; color:#16A34A; text-decoration:none;">${fullUrl}</a>
+                </div>
+                <button class="btn btn-primary" style="background:#22C55E; padding:6px 12px; font-size:13px;">Visit App ↗</button>
+            </div>
+            <div style="display:flex; align-items:center; justify-content:flex-end; gap:12px; margin-top:8px;">
+                <span style="font-size:13px;color:#777;font-weight:500;">Your app is now live.</span>
+                <a href="deployments.html" class="btn btn-ghost btn-sm" style="border:1px solid #EBEBEB;">Go to Dashboard →</a>
+            </div>
+          </div>
+        `;
+        showToast('Deployment live. Your app is running.');
+      }
+    }, delays[i]);
+  });
+}
+
+function showToast(msg) {
+  const t = document.createElement('div');
+  t.className = 'toast'; t.textContent = msg;
+  document.getElementById('toasts').appendChild(t);
+  setTimeout(() => t.remove(), 3500);
+}
+</script>
+<script>window.SG_ACTIVE_PAGE = localStorage.getItem('sg_mode') === 'developer' ? 'deployments-dev' : 'myapps';</script>
+<script src="sg-nav.js"></script>
+</body>
+</html>
