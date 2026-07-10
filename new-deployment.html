@@ -433,6 +433,15 @@
             <!-- Repo Pickers (Hidden until connected) -->
             <div id="repo-selection-section" style="display:none;">
               
+              <!-- Monorepo Toggle (Fullstack only) -->
+              <div id="monorepo-toggle-container" style="display:none;margin-bottom:16px;padding:12px;background:#FAFAFA;border:1px solid #EBEBEB;border-radius:8px;align-items:center;gap:12px;">
+                <input type="checkbox" id="monorepo-checkbox" onchange="toggleMonorepo()" style="width:16px;height:16px;accent-color:#7C3AED;cursor:pointer;">
+                <div>
+                  <label for="monorepo-checkbox" style="font-size:13px;font-weight:700;color:#333;cursor:pointer;margin-bottom:2px;display:block;">Monorepo (Frontend & Backend in same repository)</label>
+                  <div style="font-size:11.5px;color:#777;">Check this if your fullstack app uses a single repository instead of two.</div>
+                </div>
+              </div>
+
               <!-- Primary Repo (Frontend/Backend) -->
               <div class="repo-picker" id="primary-repo-picker" style="margin-bottom:20px;padding:16px;border:1px solid #EBEBEB;border-radius:12px;background:#FAFAFA;">
                 <label class="form-label" id="primary-repo-label" style="font-size:12.5px;font-weight:700;color:#444;display:block;margin-bottom:10px;">Select Repository</label>
@@ -445,6 +454,17 @@
                     <option value="main">main</option>
                     <option value="staging">staging</option>
                   </select>
+                </div>
+                <!-- Monorepo Directory Inputs -->
+                <div id="monorepo-dirs" style="display:none;margin-top:16px;border-top:1px dashed #DDD;padding-top:16px;gap:16px;">
+                  <div style="flex:1;">
+                    <label style="font-size:11px;font-weight:700;color:#666;display:block;margin-bottom:4px;">Frontend Root Directory</label>
+                    <input class="form-input" type="text" id="mono-front-dir" placeholder="./frontend" style="font-size:12px;padding:6px 10px;">
+                  </div>
+                  <div style="flex:1;">
+                    <label style="font-size:11px;font-weight:700;color:#666;display:block;margin-bottom:4px;">Backend Root Directory</label>
+                    <input class="form-input" type="text" id="mono-back-dir" placeholder="./backend" style="font-size:12px;padding:6px 10px;">
+                  </div>
                 </div>
               </div>
 
@@ -731,9 +751,29 @@ function mockGithubConnect() {
 
     document.getElementById('repo-selection-section').style.display = 'block';
     if (state.appType === 'fullstack') {
+      document.getElementById('monorepo-toggle-container').style.display = 'flex';
       document.getElementById('secondary-repo-picker').style.display = 'block';
     }
   }, 800);
+}
+
+function toggleMonorepo() {
+  const isChecked = document.getElementById('monorepo-checkbox').checked;
+  const secondaryPicker = document.getElementById('secondary-repo-picker');
+  const dirs = document.getElementById('monorepo-dirs');
+  const primaryLabel = document.getElementById('primary-repo-label');
+  
+  if (isChecked) {
+    secondaryPicker.style.display = 'none';
+    dirs.style.display = 'flex';
+    primaryLabel.textContent = 'Select Monorepo Repository';
+  } else {
+    secondaryPicker.style.display = 'block';
+    dirs.style.display = 'none';
+    primaryLabel.textContent = 'Select Repository';
+  }
+  // Re-trigger validation
+  onRepoSelect(state.primaryRepo || '', 'primary');
 }
 
 function onRepoSelect(val, type) {
@@ -746,11 +786,23 @@ function onRepoSelect(val, type) {
   }
   
   const isFullstack = state.appType === 'fullstack';
-  if ((isFullstack && state.primaryRepo && state.secondaryRepo) || (!isFullstack && state.primaryRepo)) {
-    const nextBtn = document.getElementById('btn-to-step-3');
-    if (nextBtn) {
+  const isMonorepo = isFullstack && document.getElementById('monorepo-checkbox') && document.getElementById('monorepo-checkbox').checked;
+  
+  let valid = false;
+  if (isFullstack && !isMonorepo) {
+    valid = !!(state.primaryRepo && state.secondaryRepo);
+  } else {
+    valid = !!state.primaryRepo;
+  }
+  
+  const nextBtn = document.getElementById('btn-to-step-3');
+  if (nextBtn) {
+    if (valid) {
       nextBtn.disabled = false;
       nextBtn.style.opacity = '1';
+    } else {
+      nextBtn.disabled = true;
+      nextBtn.style.opacity = '0.5';
     }
   }
 }
