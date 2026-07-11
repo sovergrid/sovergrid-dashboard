@@ -21,7 +21,11 @@ window.toggleSidebar = function () {
   const c = s.classList.toggle('collapsed');
   localStorage.setItem('sg_sidebar_collapsed', c ? '1' : '0');
   const btn = document.getElementById('sidebar-toggle-btn');
-  if (btn) btn.style.transform = c ? 'rotate(180deg)' : '';
+  if (btn) {
+    btn.setAttribute('aria-expanded', String(!c));
+    btn.setAttribute('aria-label', c ? 'Expand navigation' : 'Collapse navigation');
+    btn.title = c ? 'Expand navigation' : 'Collapse navigation';
+  }
 };
 
 (function () {
@@ -30,18 +34,11 @@ window.toggleSidebar = function () {
   const toggleBtn = document.getElementById('sidebar-toggle-btn');
   const collapsed = localStorage.getItem('sg_sidebar_collapsed') === '1';
   if (sidebar && collapsed) sidebar.classList.add('collapsed');
-  if (toggleBtn && collapsed) toggleBtn.style.transform = 'rotate(180deg)';
-
-  // Toggle sidebar when clicking anywhere in empty space
-  if (sidebar) {
-    sidebar.addEventListener('click', function(e) {
-      // Ignore if clicking the toggle button itself, or any links/buttons
-      if (e.target.closest('button') || e.target.closest('a')) return;
-      
-      if (typeof toggleSidebar === 'function') {
-        toggleSidebar();
-      }
-    });
+  if (toggleBtn) {
+    toggleBtn.setAttribute('aria-controls', 'sidebar-nav');
+    toggleBtn.setAttribute('aria-expanded', String(!collapsed));
+    toggleBtn.setAttribute('aria-label', collapsed ? 'Expand navigation' : 'Collapse navigation');
+    toggleBtn.title = collapsed ? 'Expand navigation' : 'Collapse navigation';
   }
 
   const active = window.SG_ACTIVE_PAGE || '';
@@ -101,7 +98,8 @@ window.toggleSidebar = function () {
     const isActive = active === pageKey ? ' active' : '';
     // Append mode to href for local file testing
     const hrefWithMode = href.includes('?') ? `${href}&mode=${mode}` : `${href}?mode=${mode}`;
-    return `<a href="${hrefWithMode}" class="nav-item${isActive}">${ICONS[iconKey]}<span class="nav-item-label">${label}</span></a>`;
+    const current = isActive ? ' aria-current="page"' : '';
+    return `<a href="${hrefWithMode}" class="nav-item${isActive}" title="${label}" aria-label="${label}"${current}>${ICONS[iconKey]}<span class="nav-item-label">${label}</span></a>`;
   }
 
   function section(title) {
@@ -138,10 +136,32 @@ window.toggleSidebar = function () {
   const allLinks = nav.querySelectorAll('a.nav-item');
   allLinks.forEach(link => {
     link.addEventListener('click', function(e) {
-      if (sidebar && sidebar.classList.contains('collapsed')) {
-        e.preventDefault(); // Don't reload the page, just expand
+      if (sidebar && sidebar.classList.contains('collapsed') && window.innerWidth > 960) {
+        e.preventDefault(); // On desktop, first click exposes labels before navigation.
         if (typeof toggleSidebar === 'function') toggleSidebar();
       }
     });
+  });
+
+  // Announce transient feedback and expose existing dialogs to assistive technology.
+  document.querySelectorAll('.toast-container').forEach(container => {
+    container.setAttribute('role', 'status');
+    container.setAttribute('aria-live', 'polite');
+    container.setAttribute('aria-atomic', 'true');
+  });
+  document.querySelectorAll('.modal-overlay').forEach(overlay => {
+    overlay.setAttribute('role', 'presentation');
+    const modal = overlay.querySelector('.modal');
+    if (modal) {
+      modal.setAttribute('role', 'dialog');
+      modal.setAttribute('aria-modal', 'true');
+      modal.setAttribute('tabindex', '-1');
+    }
+  });
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key !== 'Escape') return;
+    const openModal = document.querySelector('.modal-overlay.open');
+    if (openModal) openModal.classList.remove('open');
   });
 })();

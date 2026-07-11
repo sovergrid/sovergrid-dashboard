@@ -48,6 +48,9 @@
     }
     .nav-links a:hover { color: #111; }
     .nav-cta {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
       background: #111111;
       color: #ffffff;
       border: none;
@@ -122,6 +125,9 @@
       flex-wrap: wrap;
     }
     .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
       background: #111111;
       color: #fff;
       border: none;
@@ -135,6 +141,9 @@
     }
     .btn-primary:hover { background: #333; }
     .btn-outline {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
       background: transparent;
       color: #111;
       border: 1.5px solid #D4D4D4;
@@ -154,39 +163,96 @@
       color: #AAAAAA;
     }
 
-    /* Right column — canvas */
+    /* Right column — animated product workflow */
     .hero-right {
       position: relative;
       border-left: 1px solid #E4E4E0;
       overflow: hidden;
+      display: grid;
+      place-items: center;
+      padding: 56px 48px;
+      background-image: radial-gradient(#DDD9D2 0.8px, transparent 0.8px);
+      background-size: 22px 22px;
     }
-    #network-canvas {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
+    .deploy-demo {
+      width: min(100%, 590px);
+      background: rgba(255,255,255,0.96);
+      border: 1px solid #DCDCD7;
+      border-radius: 16px;
+      box-shadow: 0 24px 70px rgba(17,17,17,0.11);
+      overflow: hidden;
+      position: relative;
     }
-    /* Provider labels that float on the canvas */
-    .node-label {
-      position: absolute;
-      background: #fff;
-      border: 1px solid #E4E4E0;
-      border-radius: 7px;
-      padding: 6px 12px;
-      font-size: 12px;
-      font-weight: 600;
-      color: #111;
-      white-space: nowrap;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.06);
-      pointer-events: none;
-      display: flex;
-      align-items: center;
-      gap: 6px;
+    .demo-topbar { display:flex; align-items:center; justify-content:space-between; padding:14px 16px; border-bottom:1px solid #EBEBE7; }
+    .demo-title { font-size:12px; font-weight:800; letter-spacing:-0.1px; }
+    .demo-balance { font-size:10px; color:#6B6B6B; border:1px solid #E4E4E0; border-radius:6px; padding:5px 8px; }
+    .demo-balance strong { color:#111; }
+    .demo-steps { display:flex; align-items:center; padding:14px 16px; border-bottom:1px solid #EBEBE7; overflow:hidden; }
+    .demo-step { display:flex; align-items:center; gap:5px; color:#AAAAAA; font-size:9px; white-space:nowrap; }
+    .demo-step::after { content:''; width:24px; height:1px; background:#E4E4E0; margin:0 7px; }
+    .demo-step:last-child::after { display:none; }
+    .demo-step-num { width:18px; height:18px; border:1.5px solid #D4D4D0; border-radius:50%; display:grid; place-items:center; font-size:8px; font-weight:700; }
+    .demo-step.active { color:#111; font-weight:700; }
+    .demo-step.active .demo-step-num { background:#7C3AED; border-color:#7C3AED; color:#fff; }
+    .demo-step.done .demo-step-num { background:#22C55E; border-color:#22C55E; color:#fff; }
+    .demo-body { padding:18px; }
+    .demo-question { font-size:11px; font-weight:700; margin-bottom:12px; }
+    .demo-grid { display:grid; grid-template-columns:1fr 1fr; gap:9px; }
+    .demo-option { min-height:72px; border:1.5px solid #E4E4E0; border-radius:9px; padding:11px; display:flex; align-items:center; gap:10px; transition:border-color .25s, background .25s, transform .25s; }
+    .demo-option.selected { border-color:#7C3AED; background:#F5F3FF; transform:translateY(-1px); }
+    .demo-option-icon { width:28px; height:28px; flex:0 0 auto; border-radius:7px; background:#F8F7F4; display:grid; place-items:center; color:#111; }
+    .demo-option.selected .demo-option-icon { background:#7C3AED; color:#fff; }
+    .demo-option-icon svg { width:15px; height:15px; }
+    .demo-option-name { display:block; font-size:10px; font-weight:700; }
+    .demo-option-desc { display:block; font-size:8.5px; color:#888; margin-top:2px; }
+    .demo-footer { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-top:16px; }
+    .demo-app-name { flex:1; background:#F8F7F4; border:1px solid #E4E4E0; border-radius:7px; padding:8px 10px; font:9px 'JetBrains Mono',monospace; color:#6B6B6B; }
+    .demo-action { border:0; border-radius:7px; background:#7C3AED; color:#fff; padding:8px 12px; font-size:9px; font-weight:700; }
+    .demo-status { position:absolute; right:18px; bottom:18px; display:flex; align-items:center; gap:8px; background:#111; color:#fff; border-radius:8px; padding:9px 12px; font-size:9px; font-weight:600; box-shadow:0 8px 24px rgba(0,0,0,.18); opacity:0; transform:translateY(8px); transition:opacity .25s, transform .25s; }
+    .demo-status.show { opacity:1; transform:translateY(0); }
+    .demo-status-dot { width:6px; height:6px; border-radius:50%; background:#22C55E; box-shadow:0 0 0 3px rgba(34,197,94,.2); }
+    .demo-provider { position:absolute; z-index:2; display:flex; align-items:center; gap:6px; background:#fff; border:1px solid #E4E4E0; border-radius:7px; padding:7px 10px; box-shadow:0 6px 20px rgba(0,0,0,.07); font-size:9px; font-weight:700; }
+    .demo-provider::before { content:''; width:6px; height:6px; border-radius:50%; background:#7C3AED; }
+    .demo-provider.ak { top:12%; right:4%; animation:floatProvider 4s ease-in-out infinite; }
+    .demo-provider.sp { bottom:12%; left:3%; animation:floatProvider 4.5s ease-in-out infinite reverse; }
+    @keyframes floatProvider { 50% { transform:translateY(-7px); } }
+
+    :where(a, button):focus-visible { outline:2px solid #7C3AED; outline-offset:3px; }
+
+    @media (max-width: 900px) {
+      nav { padding:0 24px; }
+      .hero { grid-template-columns:1fr; min-height:auto; }
+      .hero-left { padding:110px 32px 64px; }
+      .hero-h1 { font-size:clamp(42px, 9vw, 58px); }
+      .hero-right { min-height:570px; border-left:0; border-top:1px solid #E4E4E0; padding:48px 32px; }
+      .product-section, .cli-section { grid-template-columns:1fr; }
+      .numbers-strip { grid-template-columns:1fr; }
+      .number-cell { border-right:0; border-bottom:1px solid #E4E4E0; }
+      .number-cell:last-child { border-bottom:0; }
     }
-    .node-label-dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
+    @media (max-width: 640px) {
+      nav { padding:0 16px; }
+      .nav-links a:not(:last-child) { display:none; }
+      .nav-links { margin-left:auto; margin-right:12px; }
+      .hero-left { padding:96px 20px 52px; }
+      .hero-h1 { font-size:42px; letter-spacing:-1.8px; }
+      .hero-right { min-height:500px; padding:36px 16px; }
+      .deploy-demo { border-radius:12px; }
+      .demo-step:nth-child(n+4) { display:none; }
+      .demo-grid { grid-template-columns:1fr; }
+      .demo-option:nth-child(n+4) { display:none; }
+      .demo-provider { display:none; }
+      .number-cell, .statement, .providers-section { padding-left:20px; padding-right:20px; }
+      .statement { padding-top:72px; padding-bottom:72px; }
+      .statement-text { font-size:36px; }
+      .product-section { padding:0 20px 72px; }
+      .cli-section { padding:64px 20px; gap:36px; }
+      footer { padding:28px 20px; flex-direction:column; align-items:flex-start; gap:18px; }
+      .footer-links { flex-wrap:wrap; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior:auto; }
+      *, *::before, *::after { animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.01ms !important; }
     }
 
     /* ── Three raw numbers ── */
@@ -446,7 +512,7 @@
     <a href="#providers">Providers</a>
     <a href="login.html">Sign in</a>
   </div>
-  <a href="register.html"><button class="nav-cta">Get started</button></a>
+  <a href="register.html" class="nav-cta">Get started</a>
 </nav>
 
 <!-- Hero: asymmetric split -->
@@ -469,54 +535,55 @@
     </p>
 
     <div class="hero-actions">
-      <a href="register.html"><button class="btn-primary">Start for free</button></a>
-      <a href="#how"><button class="btn-outline">See how it works</button></a>
+      <a href="register.html" class="btn-primary">Start for free</a>
+      <a href="#how" class="btn-outline">See how it works</a>
     </div>
 
     <p class="hero-note">No credit card required. Deploy in under 2 minutes.</p>
   </div>
 
-  <!-- Right: Animated network -->
-  <div class="hero-right">
-    <canvas id="network-canvas"></canvas>
-
-    <!-- Floating provider labels pinned at specific positions -->
-    <div class="node-label" style="top:18%;left:15%;">
-      <div class="node-label-dot" style="background:#7C3AED;"></div>
-      Akash
-    </div>
-    <div class="node-label" style="top:48%;left:52%;">
-      <div class="node-label-dot" style="background:#10B981;"></div>
-      Spheron
-    </div>
-    <div class="node-label" style="top:75%;left:18%;">
-      <div class="node-label-dot" style="background:#F59E0B;"></div>
-      4everland
-    </div>
-    <div class="node-label" style="top:32%;left:65%;">
-      <div class="node-label-dot" style="background:#EC4899;"></div>
-      Filecoin
-    </div>
-    <!-- New Decentralized APIs -->
-    <div class="node-label" style="top:12%;left:55%;">
-      <div class="node-label-dot" style="background:#9333EA;"></div>
-      Kwil
-    </div>
-    <div class="node-label" style="top:65%;left:75%;">
-      <div class="node-label-dot" style="background:#4F46E5;"></div>
-      Tableland
-    </div>
-    <div class="node-label" style="top:85%;left:45%;">
-      <div class="node-label-dot" style="background:#DC2626;"></div>
-      Bittensor
-    </div>
-    <div class="node-label" style="top:45%;left:10%;">
-      <div class="node-label-dot" style="background:#0284C7;"></div>
-      io.net
-    </div>
-    <div class="node-label" style="top:70%;left:40%;">
-      <div class="node-label-dot" style="background:#EA580C;"></div>
-      Lit Protocol
+  <!-- Right: Animated deployment workflow inspired by the product UI -->
+  <div class="hero-right" aria-label="Animated preview of the SoverGrid deployment workflow">
+    <div class="demo-provider ak">Akash compute</div>
+    <div class="demo-provider sp">Spheron edge</div>
+    <div class="deploy-demo">
+      <div class="demo-topbar">
+        <span class="demo-title">New Deployment</span>
+        <span class="demo-balance">Balance: <strong>$142.50</strong></span>
+      </div>
+      <div class="demo-steps" aria-hidden="true">
+        <div class="demo-step active"><span class="demo-step-num">1</span>App Type</div>
+        <div class="demo-step"><span class="demo-step-num">2</span>Source</div>
+        <div class="demo-step"><span class="demo-step-num">3</span>Provider</div>
+        <div class="demo-step"><span class="demo-step-num">4</span>Configure</div>
+        <div class="demo-step"><span class="demo-step-num">5</span>Deploy</div>
+      </div>
+      <div class="demo-body">
+        <div class="demo-question">What are you deploying?</div>
+        <div class="demo-grid">
+          <div class="demo-option selected" data-name="Frontend" data-app="sovergrid-web">
+            <span class="demo-option-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></span>
+            <span><span class="demo-option-name">Frontend</span><span class="demo-option-desc">React, Vue, Next.js</span></span>
+          </div>
+          <div class="demo-option" data-name="Backend API" data-app="payments-api">
+            <span class="demo-option-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 6h8M8 10h8M8 14h4"/></svg></span>
+            <span><span class="demo-option-name">Backend API</span><span class="demo-option-desc">FastAPI, Express, Go</span></span>
+          </div>
+          <div class="demo-option" data-name="Full-Stack App" data-app="nexus-platform">
+            <span class="demo-option-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/></svg></span>
+            <span><span class="demo-option-name">Full-Stack App</span><span class="demo-option-desc">Frontend + backend</span></span>
+          </div>
+          <div class="demo-option" data-name="AI Workload" data-app="model-worker">
+            <span class="demo-option-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></span>
+            <span><span class="demo-option-name">AI Workload</span><span class="demo-option-desc">Distributed GPU compute</span></span>
+          </div>
+        </div>
+        <div class="demo-footer">
+          <div class="demo-app-name" id="demo-app-name">sovergrid-web</div>
+          <span class="demo-action">Continue →</span>
+        </div>
+      </div>
+      <div class="demo-status" id="demo-status"><span class="demo-status-dot"></span><span id="demo-status-text">Frontend ready to deploy</span></div>
     </div>
   </div>
 </section>
@@ -751,93 +818,31 @@
 </footer>
 
 <script>
-/* ── Light-background network animation ── */
-const canvas = document.getElementById('network-canvas');
-const ctx    = canvas.getContext('2d');
+/* Product-led hero animation: cycles through real SoverGrid workload types. */
+const demoOptions = [...document.querySelectorAll('.demo-option')];
+const demoSteps = [...document.querySelectorAll('.demo-step')];
+const demoName = document.getElementById('demo-app-name');
+const demoStatus = document.getElementById('demo-status');
+const demoStatusText = document.getElementById('demo-status-text');
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+let demoIndex = 0;
 
-function resize() {
-  const r = canvas.parentElement.getBoundingClientRect();
-  canvas.width  = r.width;
-  canvas.height = r.height;
-}
-resize();
-window.addEventListener('resize', resize);
-
-const NODE_COUNT = 22;
-const MAX_DIST   = 140;
-
-/* Anchor nodes roughly at the floating label positions */
-const anchors = [
-  { x: 0.25, y: 0.25 },   /* Akash */
-  { x: 0.65, y: 0.52 },   /* Spheron */
-  { x: 0.22, y: 0.73 },   /* 4everland */
-  { x: 0.68, y: 0.38 },   /* Filecoin */
-];
-
-const nodes = Array.from({ length: NODE_COUNT }, (_, i) => {
-  const base = i < anchors.length ? anchors[i] : { x: Math.random(), y: Math.random() };
-  return {
-    x:  base.x * (canvas.width  || 600),
-    y:  base.y * (canvas.height || 700),
-    vx: (Math.random() - 0.5) * 0.25,
-    vy: (Math.random() - 0.5) * 0.25,
-    r:  i < anchors.length ? 5 : (Math.random() * 2.5 + 1.5),
-    isAnchor: i < anchors.length,
-    pulse: Math.random() * Math.PI * 2,
-  };
-});
-
-function draw() {
-  const W = canvas.width, H = canvas.height;
-  ctx.clearRect(0, 0, W, H);
-
-  nodes.forEach(n => {
-    n.x  += n.vx;
-    n.y  += n.vy;
-    n.pulse += 0.018;
-    if (n.x < 0 || n.x > W) n.vx *= -1;
-    if (n.y < 0 || n.y > H) n.vy *= -1;
+function updateDemo() {
+  const option = demoOptions[demoIndex];
+  demoOptions.forEach(item => item.classList.toggle('selected', item === option));
+  demoName.textContent = option.dataset.app;
+  demoStatusText.textContent = `${option.dataset.name} ready to deploy`;
+  demoSteps.forEach((step, index) => {
+    step.classList.toggle('active', index === demoIndex % demoSteps.length);
+    step.classList.toggle('done', index < demoIndex % demoSteps.length);
   });
-
-  /* Edges */
-  for (let i = 0; i < nodes.length; i++) {
-    for (let j = i + 1; j < nodes.length; j++) {
-      const a = nodes[i], b = nodes[j];
-      const dx = a.x - b.x, dy = a.y - b.y;
-      const dist = Math.sqrt(dx*dx + dy*dy);
-      if (dist < MAX_DIST) {
-        const alpha = (1 - dist / MAX_DIST) * 0.22;
-        ctx.beginPath();
-        ctx.moveTo(a.x, a.y);
-        ctx.lineTo(b.x, b.y);
-        ctx.strokeStyle = `rgba(108, 99, 255, ${alpha})`;
-        ctx.lineWidth = 1;
-        ctx.stroke();
-      }
-    }
-  }
-
-  /* Nodes */
-  nodes.forEach(n => {
-    const pulse = Math.sin(n.pulse) * 0.5 + 0.5;
-    if (n.isAnchor) {
-      /* Outer ring */
-      ctx.beginPath();
-      ctx.arc(n.x, n.y, n.r + 4 + pulse * 2, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(108, 99, 255, ${0.1 + pulse * 0.06})`;
-      ctx.fill();
-    }
-    ctx.beginPath();
-    ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
-    ctx.fillStyle = n.isAnchor
-      ? `rgba(108, 99, 255, ${0.7 + pulse * 0.25})`
-      : `rgba(108, 99, 255, ${0.25 + pulse * 0.15})`;
-    ctx.fill();
-  });
-
-  requestAnimationFrame(draw);
+  demoStatus.classList.add('show');
+  window.setTimeout(() => demoStatus.classList.remove('show'), 1800);
+  demoIndex = (demoIndex + 1) % demoOptions.length;
 }
-draw();
+
+updateDemo();
+if (!reduceMotion) window.setInterval(updateDemo, 2800);
 </script>
 </body>
 </html>

@@ -99,6 +99,58 @@
     .wizard-panel.active { display:block; }
 
     .wizard-actions { display:flex; gap:10px; margin-top:24px; align-items:center; }
+    .config-section { margin-bottom:20px; padding-bottom:20px; border-bottom:1px solid var(--border); }
+    .config-section:last-child { margin-bottom:0; padding-bottom:0; border-bottom:0; }
+    .config-title { font-size:13px; font-weight:700; margin-bottom:4px; }
+    .config-desc { font-size:12px; color:var(--text-muted); margin-bottom:12px; }
+    .config-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    .config-choice-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+    .config-choice { border:1.5px solid var(--border); border-radius:9px; padding:12px; cursor:pointer; background:#fff; }
+    .config-choice.selected { border-color:var(--accent); background:var(--accent-bg); }
+    .config-choice-name { font-size:12.5px; font-weight:700; }
+    .config-choice-desc { margin-top:3px; font-size:11px; line-height:1.4; color:var(--text-muted); }
+    .placement-panel { margin-top:18px; padding:16px; border:1px solid var(--border); border-radius:10px; background:#FAFAF8; }
+    .placement-options { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:12px; }
+    .placement-option { display:flex; gap:9px; padding:11px; border:1.5px solid var(--border); border-radius:8px; background:#fff; cursor:pointer; }
+    .placement-option:has(input:checked) { border-color:var(--accent); background:var(--accent-bg); }
+    .placement-option input { margin-top:2px; accent-color:var(--accent); }
+    .placement-caption { font-size:11px; color:var(--text-muted); line-height:1.4; }
+    .placement-note { margin-top:10px; padding:10px 12px; border-radius:7px; background:#F5F3FF; color:var(--accent-text); font-size:11.5px; line-height:1.5; }
+    .chain-panel { display:none; }
+    .chain-panel.active { display:block; }
+    .field-label { display:block; margin-bottom:6px; font-size:12px; font-weight:650; color:#444; }
+    .check-row { display:flex; align-items:flex-start; gap:9px; font-size:12px; color:var(--text-secondary); }
+    .check-row input { margin-top:2px; accent-color:var(--accent); }
+    @media(max-width:640px) { .config-grid,.config-choice-grid,.placement-options { grid-template-columns:1fr; } }
+
+    /* Perspective infrastructure map — desktop companion to the wizard */
+    .main { position:relative; }
+    .infra-visual {
+      position:absolute; top:84px; right:24px; bottom:24px; left:760px;
+      min-width:360px; overflow:hidden; border-left:1px solid var(--border);
+      background:radial-gradient(circle at 54% 42%, rgba(124,58,237,.08), transparent 34%);
+      isolation:isolate;
+    }
+    .infra-copy { position:absolute; top:24px; left:28px; z-index:4; }
+    .infra-kicker { font-size:10px; font-weight:800; letter-spacing:.1em; text-transform:uppercase; color:var(--accent); }
+    .infra-title { margin-top:5px; font-size:15px; font-weight:750; letter-spacing:-.25px; }
+    .infra-sub { margin-top:4px; max-width:280px; font-size:11.5px; line-height:1.5; color:var(--text-muted); }
+    .network-journey { position:absolute; inset:92px 0 0; overflow:hidden; }
+    #network-journey-canvas { width:100%; height:100%; display:block; }
+    .journey-hud {
+      position:absolute; left:28px; bottom:24px; z-index:4; min-width:178px;
+      background:rgba(255,255,255,.92); border:1px solid var(--border); border-radius:10px;
+      padding:10px 12px; box-shadow:0 10px 28px rgba(17,17,17,.08); backdrop-filter:blur(8px);
+      transition:transform .25s, opacity .25s;
+    }
+    .journey-hud-label { font-size:8.5px; font-weight:800; letter-spacing:.09em; text-transform:uppercase; color:var(--accent); }
+    .journey-hud-row { display:flex; align-items:center; gap:7px; margin-top:4px; }
+    .journey-hud-dot { width:7px; height:7px; border-radius:50%; background:var(--green); box-shadow:0 0 0 4px rgba(34,197,94,.12); }
+    .journey-hud-name { font-size:11px; font-weight:750; }
+    .journey-hud-meta { margin-top:2px; padding-left:14px; font-size:9px; color:var(--text-muted); }
+    .journey-corner { position:absolute; right:24px; bottom:26px; z-index:4; font:9px 'JetBrains Mono',monospace; color:var(--text-muted); }
+    @media (max-width:1280px) { .infra-visual { display:none; } }
+    @media (prefers-reduced-motion:reduce) { .journey-hud { transition:none; } }
   </style>
 </head>
 <body>
@@ -265,7 +317,7 @@
       <div class="wizard-panel" id="panel-3">
         <div class="card">
           <div class="card-header">
-            <span class="card-title">Choose a provider</span>
+            <span class="card-title" id="provider-step-title">Choose a provider</span>
             <span style="font-size:12.5px;color:#AAAAAA;">Prices update in real time from each network</span>
           </div>
           <div class="card-body">
@@ -407,6 +459,25 @@
             
             <!-- Upload Info Display -->
             <div id="provider-upload-info" style="display:none; margin-top:20px; padding:12px; background:#F0FDF4; border:1px solid #BBF7D0; border-radius:8px; font-size:13px; color:#15803D;"></div>
+
+            <div class="chain-panel" id="chain-panel">
+              <div class="config-title">Choose a blockchain ecosystem</div>
+              <div class="config-desc">Token deployment uses a blockchain network, not a container provider.</div>
+              <div class="config-choice-grid">
+                <div class="config-choice selected" onclick="selectChainFamily('evm',this)"><div class="config-choice-name">Ethereum & EVM</div><div class="config-choice-desc">ERC-20 contract on Base, Ethereum, Polygon, Arbitrum, or Optimism.</div></div>
+                <div class="config-choice" onclick="selectChainFamily('solana',this)"><div class="config-choice-name">Solana</div><div class="config-choice-desc">SPL Token or Token-2022 mint with metadata and authorities.</div></div>
+              </div>
+            </div>
+
+            <div class="placement-panel" id="placement-panel">
+              <div class="config-title">Availability policy</div>
+              <div class="config-desc">Choose how SoverGrid distributes identical image replicas.</div>
+              <section class="placement-options">
+                <label class="placement-option"><input type="radio" name="placement" value="single" checked onchange="setPlacementMode('single')"><span><strong>Single provider</strong><br><span class="placement-caption">Lower cost. Replicas stay with one provider.</span></span></label>
+                <label class="placement-option"><input type="radio" name="placement" value="multi" onchange="setPlacementMode('multi')"><span><strong>Multi-provider HA</strong><br><span class="placement-caption">Replicas span at least two independent providers.</span></span></label>
+              </section>
+              <section class="placement-note" id="placement-note">Select one provider above. SoverGrid will keep the requested replica count healthy within that provider.</section>
+            </div>
           </div>
         </div>
         <div class="wizard-actions">
@@ -418,8 +489,9 @@
       <!-- ── Step 2: Source ── -->
       <div class="wizard-panel" id="panel-2">
         <div class="card">
-          <div class="card-header"><span class="card-title">Connect Source Repository</span></div>
+          <div class="card-header"><span class="card-title" id="source-step-title">Connect Source Repository</span></div>
           <div class="card-body">
+            <div id="source-guidance" style="display:none;margin-bottom:16px;padding:12px 14px;background:#F5F3FF;border:1px solid #DDD6FE;border-radius:8px;font-size:12.5px;color:#5B21B6;line-height:1.55;"></div>
             <!-- Source: GitHub Connect Mock -->
             <div style="margin-bottom:20px;" id="gh-connect-section">
               <label class="form-label" style="font-size:12.5px;font-weight:600;color:#444;display:block;margin-bottom:6px;">GitHub Connection</label>
@@ -501,6 +573,8 @@
             <span style="font-size:12.5px;color:#AAAAAA;display:block;margin-top:4px;">We'll run a dry-run build to verify dependencies and env variables before charging you.</span>
           </div>
           <div class="card-body">
+
+            <div id="workload-config"></div>
             
             <div id="env-vars-container" style="margin-bottom:24px;">
               <div style="font-size:13px;font-weight:600;color:#444;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;">
@@ -603,6 +677,7 @@
             <div class="review-row"><span class="review-label">App type</span><span class="review-val" id="rv-type">Frontend</span></div>
             <div class="review-row"><span class="review-label">Provider</span><span class="review-val" id="rv-provider">Akash</span></div>
             <div class="review-row"><span class="review-label">Source</span><span class="review-val" id="rv-source" style="font-family:'JetBrains Mono',monospace;font-size:12px;">—</span></div>
+            <div class="review-row"><span class="review-label" id="rv-policy-label">Availability</span><span class="review-val" id="rv-policy">Single provider</span></div>
           </div>
         </div>
 
@@ -629,6 +704,23 @@
       </div>
 
     </div><!-- /content -->
+
+    <aside class="infra-visual" aria-label="SoverGrid provider connection map">
+      <div class="infra-copy">
+        <div class="infra-kicker">Live provider routing</div>
+        <div class="infra-title">One deployment. Multiple networks.</div>
+        <div class="infra-sub">SoverGrid routes each workload to the provider best suited to run it.</div>
+      </div>
+      <div class="network-journey" aria-hidden="true">
+        <canvas id="network-journey-canvas"></canvas>
+      </div>
+      <div class="journey-hud">
+        <div class="journey-hud-label">Connecting to</div>
+        <div class="journey-hud-row"><span class="journey-hud-dot"></span><span class="journey-hud-name" id="journey-provider">Akash</span></div>
+        <div class="journey-hud-meta" id="journey-meta">Compute · eu-west</div>
+      </div>
+      <div class="journey-corner">CAMERA · FOLLOW</div>
+    </aside>
   </div><!-- /main -->
 </div>
 
@@ -677,7 +769,7 @@
       <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;">
         <input type="checkbox" id="mc-billing-check" onchange="checkModalGates()"
           style="margin-top:2px;accent-color:#7C3AED;width:16px;height:16px;flex-shrink:0;">
-        <span style="font-size:13px;color:#333;line-height:1.5;">
+        <span id="confirmation-ack-text" style="font-size:13px;color:#333;line-height:1.5;">
           I understand that <strong>my SoverGrid Vault will be charged in real time</strong> as containers run, starting immediately after deployment. Charges stop only when I delete or suspend the deployment.
         </span>
       </label>
@@ -715,6 +807,10 @@ let state = {
   providerLabel: null,
   pricePerHour: 0.003,
   containers: 1,
+  placementMode: 'single',
+  providers: [],
+  chainFamily: 'evm',
+  chainNetwork: 'base-sepolia',
   balance: 142.50
 };
 
@@ -862,18 +958,23 @@ function goToStep(n) {
   if (n === 3) {
     const pMap = {
       'frontend': ['spheron', '4everland'],
-      'backend': ['akash'],
+      'backend': ['akash', 'spheron'],
       'fullstack': ['spheron', '4everland', 'akash'], // Handled specially below
       'static': ['spheron', '4everland', 'arweave'],
-      'worker': ['akash'],
+      'worker': ['akash', 'spheron'],
       'custom': ['akash', 'spheron'],
       'ml': ['bittensor', 'ionet', 'akash'],
       'storage': ['arweave', 'filecoin', 'pinata'],
       'database': ['kwil', 'tableland'],
       'security': ['lit'],
-      'token': ['akash']
+      'token': []
     };
     const allowed = pMap[state.appType] || [];
+    const isToken = state.appType === 'token';
+    document.getElementById('provider-step-title').textContent = isToken ? 'Choose a blockchain' : 'Choose providers';
+    document.getElementById('chain-panel').classList.toggle('active', isToken);
+    document.getElementById('placement-panel').style.display = isToken || ['storage','database','security'].includes(state.appType) ? 'none' : 'block';
+    document.getElementById('main-provider-grid').style.display = isToken ? 'none' : 'grid';
     
     // Reset any fullstack UI
     const fsContainer = document.getElementById('fullstack-split-ui');
@@ -942,7 +1043,7 @@ function goToStep(n) {
           backGrid.appendChild(clone);
         }
       });
-    } else {
+    } else if (!isToken) {
       document.getElementById('main-provider-grid').style.display = 'grid'; // show main grid
     }
   }
@@ -954,13 +1055,65 @@ function goToStep(n) {
       fullstackNote.style.display = (state.appType === 'fullstack') ? 'block' : 'none';
     }
     
+    renderWorkloadConfig();
     if (window.lastEnvAppType !== state.appType) {
       document.getElementById('env-rows-wrapper').innerHTML = '';
       window.lastEnvAppType = state.appType;
-      addEnvRow(); // add at least 1 empty row
+      if (!['token','storage','database','security'].includes(state.appType)) addEnvRow();
     }
   }
   if (n === 5) buildReview();
+}
+
+function setPlacementMode(mode) {
+  state.placementMode = mode;
+  state.providers = state.provider ? [{id:state.provider,label:state.providerLabel,price:state.pricePerHour}] : [];
+  document.querySelectorAll('.provider-card').forEach(card => card.classList.remove('selected'));
+  if (state.provider) document.getElementById(`prov-${state.provider}`)?.classList.add('selected');
+  updatePlacementNote();
+}
+
+function updatePlacementNote() {
+  const note = document.getElementById('placement-note');
+  if (!note) return;
+  if (state.placementMode === 'multi') {
+    const names = state.providers.map(item => item.label);
+    note.innerHTML = names.length >= 2
+      ? `<strong>${names.join(' + ')}</strong> selected. Traffic will use health-gated failover across providers.`
+      : 'Select at least two providers above. The same immutable image will be deployed to each provider and only healthy endpoints will receive traffic.';
+  } else {
+    note.textContent = 'Select one provider above. SoverGrid will keep the requested replica count healthy within that provider.';
+  }
+}
+
+function selectChainFamily(family, element) {
+  state.chainFamily = family;
+  document.querySelectorAll('#chain-panel .config-choice').forEach(item => item.classList.remove('selected'));
+  element.classList.add('selected');
+}
+
+function renderWorkloadConfig() {
+  const host = document.getElementById('workload-config');
+  const env = document.getElementById('env-vars-container');
+  const type = state.appType;
+  const containerTypes = ['frontend','backend','fullstack','static','worker','custom'];
+  env.style.display = containerTypes.includes(type) || type === 'ml' ? 'block' : 'none';
+
+  if (type === 'token') {
+    host.innerHTML = `<div class="config-section"><div class="config-title">Token standard & network</div><div class="config-desc">EVM and Solana use different token programs and signing flows.</div><div class="config-grid"><label><span class="field-label">Standard</span><select class="form-input" id="token-standard" onchange="state.chainFamily=this.value.startsWith('spl')?'solana':'evm'"><option value="erc20">ERC-20 (EVM)</option><option value="spl">SPL Token (Solana)</option><option value="spl-2022">Token-2022 (Solana)</option></select></label><label><span class="field-label">Network</span><select class="form-input" id="chain-network"><option>Base Sepolia (testnet)</option><option>Ethereum Sepolia (testnet)</option><option>Base</option><option>Ethereum</option><option>Polygon</option><option>Arbitrum</option><option>Solana Devnet</option><option>Solana Mainnet</option></select></label></div></div><div class="config-section"><div class="config-title">Token configuration</div><div class="config-grid"><label><span class="field-label">Token name</span><input class="form-input" id="token-name" placeholder="SoverGrid Token"></label><label><span class="field-label">Symbol</span><input class="form-input" id="token-symbol" placeholder="SGRID" maxlength="10"></label><label><span class="field-label">Initial supply</span><input class="form-input" id="token-supply" type="number" value="1000000" min="1"></label><label><span class="field-label">Decimals</span><input class="form-input" id="token-decimals" type="number" value="18" min="0" max="18"></label></div></div><div class="config-section"><div class="config-title">Authorities & safety</div><div class="config-desc">Authority choices affect whether supply or accounts can be changed later.</div><div style="display:grid;gap:10px"><label class="check-row"><input type="checkbox" checked>Allow future minting (mint authority)</label><label class="check-row"><input type="checkbox">Allow account freezing (freeze authority)</label><label class="check-row"><input type="checkbox" checked>Run testnet simulation before requesting wallet signature</label><label class="check-row"><input type="checkbox" checked>Verify contract source and publish token metadata</label></div></div><div class="placement-note"><strong>Signature required:</strong> SoverGrid prepares and simulates the transaction. Your connected wallet reviews gas/network fees and signs the final deployment.</div>`;
+  } else if (type === 'storage') {
+    host.innerHTML = `<div class="config-section"><div class="config-title">Storage policy</div><div class="config-grid"><label><span class="field-label">Content source</span><select class="form-input"><option>Repository build output</option><option>Upload files or folder</option><option>Existing IPFS CID</option></select></label><label><span class="field-label">Retention</span><select class="form-input"><option>Persistent pinning</option><option>Filecoin archival deal</option><option>Permanent storage</option></select></label><label><span class="field-label">Replication target</span><select class="form-input"><option>2 storage providers</option><option>3 storage providers</option><option>Single provider</option></select></label><label><span class="field-label">Gateway access</span><select class="form-input"><option>Public gateway</option><option>Token-gated</option><option>Private encrypted</option></select></label></div></div>`;
+  } else if (type === 'database') {
+    host.innerHTML = `<div class="config-section"><div class="config-title">Database schema</div><div class="config-grid"><label><span class="field-label">Schema source</span><select class="form-input"><option>Detect from repository</option><option>Upload SQL / Kuneiform</option><option>Start empty</option></select></label><label><span class="field-label">Target environment</span><select class="form-input"><option>Testnet</option><option>Mainnet</option></select></label></div></div><div class="config-section"><div class="config-title">Access policy</div><div style="display:grid;gap:10px"><label class="check-row"><input type="checkbox" checked>Validate schema and migrations before deployment</label><label class="check-row"><input type="checkbox" checked>Restrict write access to authorized wallets</label><label class="check-row"><input type="checkbox">Create read-only public endpoint</label></div></div>`;
+  } else if (type === 'security') {
+    host.innerHTML = `<div class="config-section"><div class="config-title">Access-control policy</div><div class="config-grid"><label><span class="field-label">Protected resource</span><select class="form-input"><option>Encryption key</option><option>File or content CID</option><option>API capability</option></select></label><label><span class="field-label">Authorization rule</span><select class="form-input"><option>Wallet allowlist</option><option>Token ownership</option><option>NFT ownership</option><option>Smart-contract condition</option></select></label></div></div><div class="placement-note">The policy will be simulated before your wallet signs the Lit authentication and publication requests.</div>`;
+  } else if (type === 'ml') {
+    host.innerHTML = `<div class="config-section"><div class="config-title">GPU job</div><div class="config-grid"><label><span class="field-label">GPU tier</span><select class="form-input" id="cpu-select"><option>NVIDIA T4</option><option>NVIDIA A4000</option><option>NVIDIA A100</option><option>NVIDIA H100</option></select></label><label><span class="field-label">Memory</span><select class="form-input" id="mem-select"><option>16 GB</option><option>40 GB</option><option>80 GB</option></select></label><label><span class="field-label">Maximum runtime</span><select class="form-input"><option>1 hour</option><option>6 hours</option><option>24 hours</option><option>No fixed limit</option></select></label><label><span class="field-label">Maximum spend</span><input class="form-input" type="number" value="20" min="1"></label></div></div><div class="config-section"><div class="config-title">Outputs</div><div class="config-grid"><label><span class="field-label">Dataset location</span><input class="form-input" placeholder="s3://, ipfs:// or repository path"></label><label><span class="field-label">Checkpoint destination</span><input class="form-input" placeholder="ipfs:// or storage bucket"></label></div></div>`;
+  } else {
+    const isPublic = !['worker'].includes(type);
+    host.innerHTML = `<div class="config-section"><div class="config-title">Runtime resources</div><div class="config-desc">Applied to each replica of the immutable image.</div><div class="config-grid"><label><span class="field-label">CPU per replica</span><select class="form-input" id="cpu-select"><option value="0.5">0.5 vCPU</option><option value="1" selected>1 vCPU</option><option value="2">2 vCPU</option><option value="4">4 vCPU</option></select></label><label><span class="field-label">Memory per replica</span><select class="form-input" id="mem-select"><option>256 MB</option><option selected>512 MB</option><option>1 GB</option><option>2 GB</option></select></label><label><span class="field-label">Replicas</span><select class="form-input" id="replica-select" onchange="state.containers=Number(this.value)"><option value="1">1 replica</option><option value="2">2 replicas</option><option value="3" selected>3 replicas</option><option value="5">5 replicas</option></select></label><label><span class="field-label">${isPublic?'Container port':'Restart policy'}</span>${isPublic?'<input class="form-input" type="number" value="3000">':'<select class="form-input"><option>Always</option><option>On failure</option></select>'}</label></div></div><div class="config-section"><div class="config-title">Health & rollout</div><div class="config-grid"><label><span class="field-label">Readiness path</span><input class="form-input" value="/health" ${isPublic?'':'disabled'}></label><label><span class="field-label">Failure threshold</span><select class="form-input"><option>3 failed checks</option><option>5 failed checks</option></select></label><label><span class="field-label">Release strategy</span><select class="form-input"><option>Rolling update</option><option>Canary 10%</option><option>Blue / green</option></select></label><label><span class="field-label">Failed release</span><select class="form-input"><option>Automatic rollback</option><option>Pause for review</option></select></label></div></div>`;
+    state.containers = 3;
+  }
 }
 
 function selectAppType(type, label) {
@@ -968,6 +1121,19 @@ function selectAppType(type, label) {
   document.querySelectorAll('.app-type-card').forEach(c => c.classList.remove('selected'));
   event.currentTarget.classList.add('selected');
   document.getElementById('fullstack-note').style.display = (type === 'fullstack') ? 'block' : 'none';
+  const tokenFlow = type === 'token';
+  document.getElementById('source-step-title').textContent = tokenFlow ? 'Choose contract source' : type === 'storage' ? 'Choose content source' : type === 'database' ? 'Choose schema source' : 'Connect Source Repository';
+  const guidance = document.getElementById('source-guidance');
+  guidance.style.display = tokenFlow ? 'block' : 'none';
+  guidance.textContent = tokenFlow ? 'Use a generated OpenZeppelin ERC-20 template, create a Solana token mint, or connect an existing audited contract repository. A repository is optional for generated templates.' : '';
+  const sourceNext = document.getElementById('btn-to-step-3');
+  if (tokenFlow) {
+    sourceNext.disabled = false;
+    sourceNext.style.opacity = '1';
+  } else if (!githubConnected) {
+    sourceNext.disabled = true;
+    sourceNext.style.opacity = '0.5';
+  }
   
   // Show/hide secondary repo picker based on app type if GitHub is connected
   if (githubConnected) {
@@ -982,9 +1148,21 @@ function selectAppType(type, label) {
 
 function selectProvider(id, label, price, type) {
   if (id === 'filecoin' || id === 'pinata') { showToast(`Vote recorded for ${label}! We will prioritize this integration.`); return; }
+  const card = document.getElementById(`prov-${id}`);
   state.provider = id; state.providerLabel = label; state.pricePerHour = price;
-  document.querySelectorAll('.provider-card').forEach(c => c.classList.remove('selected'));
-  document.getElementById(`prov-${id}`).classList.add('selected');
+  if (state.placementMode === 'multi') {
+    const existing = state.providers.findIndex(item => item.id === id);
+    if (existing >= 0 && state.providers.length > 1) {
+      state.providers.splice(existing, 1); card.classList.remove('selected');
+    } else if (existing < 0) {
+      state.providers.push({id, label, price}); card.classList.add('selected');
+    }
+  } else {
+    state.providers = [{id, label, price}];
+    document.querySelectorAll('.provider-card').forEach(c => c.classList.remove('selected'));
+    card.classList.add('selected');
+  }
+  updatePlacementNote();
   
   const uploadInfo = document.getElementById('provider-upload-info');
   if (uploadInfo) {
@@ -1045,9 +1223,11 @@ function addEnvRow() {
 
 function buildReview() {
   const name = document.getElementById('app-name').value || 'my-app';
-  const cpu  = document.getElementById('cpu-select').value;
-  const mem  = document.getElementById('mem-select').value;
-  let src = state.primaryRepo || '—';
+  const cpuEl = document.getElementById('cpu-select');
+  const memEl = document.getElementById('mem-select');
+  const cpu = cpuEl ? cpuEl.value : 'Not applicable';
+  const mem = memEl ? memEl.value : 'Not applicable';
+  let src = state.appType === 'token' ? 'Generated audited template' : (state.primaryRepo || '—');
   if (state.appType === 'fullstack' && state.secondaryRepo) {
     src += ` (Frontend) + ${state.secondaryRepo} (Backend)`;
   }
@@ -1072,6 +1252,12 @@ function buildReview() {
   document.getElementById('rv-type').textContent = state.appTypeLabel || '—';
   
   let providerDisplay = state.providerLabel || '—';
+  if (state.appType === 'token') {
+    const network = document.getElementById('chain-network');
+    providerDisplay = network ? network.value : (state.chainFamily === 'solana' ? 'Solana Devnet' : 'Base Sepolia');
+  } else if (state.placementMode === 'multi' && state.providers.length) {
+    providerDisplay = state.providers.map(item => item.label).join(' + ');
+  }
   if (state.appType === 'fullstack') {
     let fLabel = 'Spheron';
     let bLabel = 'Akash';
@@ -1087,11 +1273,35 @@ function buildReview() {
   }
   document.getElementById('rv-provider').textContent = providerDisplay;
   document.getElementById('rv-source').textContent = src;
+  document.getElementById('rv-policy-label').textContent = state.appType === 'token' ? 'Authorization' : 'Availability';
+  document.getElementById('rv-policy').textContent = state.appType === 'token' ? 'Wallet signature required' : (state.placementMode === 'multi' ? `Multi-provider · ${state.containers} replicas` : `Single provider · ${state.containers} replicas`);
 
-  document.getElementById('cost-containers-label').textContent = `Provider Cost (${n} container${n>1?'s':''} × $${ph}/hr)`;
-  document.getElementById('cost-monthly').textContent = `$${providerMonthly.toFixed(2)}/mo`;
+  const costLabel = document.getElementById('cost-containers-label');
+  const costValue = document.getElementById('cost-monthly');
+  const totalLabel = document.querySelector('#panel-5 .cost-line[style*="margin-top"] span:first-child');
   const costTotalEl = document.getElementById('cost-total');
-  if (costTotalEl) costTotalEl.textContent = `$${totalMonthly.toFixed(2)}`;
+  if (state.appType === 'token') {
+    costLabel.textContent = 'Estimated network fee (final quote shown in wallet)';
+    costValue.textContent = '$0.10 estimated';
+    document.getElementById('cost-deploy-label').textContent = 'SoverGrid deployment fee';
+    document.getElementById('cost-deploy').textContent = '$5.00 once';
+    if (totalLabel) totalLabel.textContent = 'Estimated amount due once';
+    if (costTotalEl) costTotalEl.textContent = '$5.10';
+  } else if (state.appType === 'ml') {
+    costLabel.textContent = `GPU usage (${cpu})`;
+    costValue.textContent = `$${ph.toFixed(2)}/hr`;
+    document.getElementById('cost-deploy-label').textContent = 'SoverGrid usage markup';
+    document.getElementById('cost-deploy').textContent = 'Included in hourly quote';
+    if (totalLabel) totalLabel.textContent = 'Usage-based billing';
+    if (costTotalEl) costTotalEl.textContent = `$${ph.toFixed(2)}/hr`;
+  } else {
+    document.getElementById('cost-deploy-label').textContent = 'SoverGrid Markup';
+    document.getElementById('cost-deploy').textContent = `$${markupFee.toFixed(2)}/mo`;
+    costLabel.textContent = `Provider Cost (${n} container${n>1?'s':''} × $${ph}/hr)`;
+    costValue.textContent = `$${providerMonthly.toFixed(2)}/mo`;
+    if (totalLabel) totalLabel.textContent = 'Total Charged Now (and every 30 days)';
+    if (costTotalEl) costTotalEl.textContent = `$${totalMonthly.toFixed(2)}`;
+  }
   document.getElementById('cost-balance').textContent = `$${state.balance.toFixed(2)}`;
   
   const monthsEl = document.getElementById('months-covered');
@@ -1099,7 +1309,13 @@ function buildReview() {
 
   // Balance warning
   const bstatus = document.getElementById('balance-status');
-  if (monthsCovered < 1) {
+  if (state.appType === 'token') {
+    bstatus.className = 'balance-ok';
+    bstatus.innerHTML = 'This is a <strong>one-time deployment</strong>. Your wallet will show the final network fee before you sign.';
+  } else if (state.appType === 'ml') {
+    bstatus.className = 'balance-ok';
+    bstatus.innerHTML = 'Training is <strong>usage-based</strong>. The job stops automatically at your configured runtime or spending limit.';
+  } else if (monthsCovered < 1) {
     bstatus.className = 'balance-warn';
     bstatus.innerHTML = `<strong>Low balance warning.</strong> Your balance may not cover a full month. <a href="billing.html" style="color:#92400E;font-weight:700;">Top up now →</a>`;
   } else if (monthsCovered < 3) {
@@ -1124,10 +1340,20 @@ function openConfirmModal() {
   const bal     = state.balance;
 
   // Populate modal cost figures
-  document.getElementById('mc-containers').textContent = `Provider Cost (${n} container${n>1?'s':''} × $${ph}/hr)`;
-  document.getElementById('mc-provider').textContent  = `$${providerMonthly.toFixed(2)}/mo`;
-  document.getElementById('mc-markup').textContent   = `$${markupFee.toFixed(2)}/mo`;
-  document.getElementById('mc-monthly').textContent = `$${totalMonthly.toFixed(2)}`;
+  const ackText = document.getElementById('confirmation-ack-text');
+  if (state.appType === 'token') {
+    document.getElementById('mc-containers').textContent = 'Estimated network fee';
+    document.getElementById('mc-provider').textContent = '$0.10 est.';
+    document.getElementById('mc-markup').textContent = '$5.00 once';
+    document.getElementById('mc-monthly').textContent = '$5.10 estimated';
+    ackText.innerHTML = 'I reviewed the token configuration and understand that <strong>my wallet must approve the final network transaction</strong>. The displayed gas fee is an estimate until signing.';
+  } else {
+    document.getElementById('mc-containers').textContent = `Provider Cost (${n} container${n>1?'s':''} × $${ph}/hr)`;
+    document.getElementById('mc-provider').textContent  = `$${providerMonthly.toFixed(2)}/mo`;
+    document.getElementById('mc-markup').textContent   = `$${markupFee.toFixed(2)}/mo`;
+    document.getElementById('mc-monthly').textContent = `$${totalMonthly.toFixed(2)}`;
+    ackText.innerHTML = 'I understand that <strong>my SoverGrid Vault will be charged in real time</strong> as containers run, starting immediately after deployment. Charges stop only when I delete or suspend the deployment.';
+  }
 
   // App name hint
   const appName = document.getElementById('app-name').value.trim() || 'my-app';
@@ -1200,9 +1426,17 @@ function startDeploy() {
   const btn = document.getElementById('deploy-btn');
   if (btn) { btn.disabled = true; btn.textContent = 'Deploying...'; }
 
-  const providerLabel = state.providerLabel || 'Akash';
-  document.getElementById('log-3-text').textContent =
-    `Provisioning ${state.containers} container${state.containers>1?'s':''} on ${providerLabel}`;
+  const providerLabel = state.placementMode === 'multi' && state.providers.length
+    ? state.providers.map(item => item.label).join(' + ')
+    : (state.providerLabel || 'Akash');
+  const logText = [...document.querySelectorAll('.deploy-log .log-line span:last-child')];
+  if (state.appType === 'token') {
+    const tokenSteps = ['Generating token definition','Compiling and validating configuration','Simulating transaction on selected network','Requesting wallet signature','Waiting for network confirmation','Publishing metadata and verification'];
+    logText.forEach((node,index) => node.textContent = tokenSteps[index]);
+  } else {
+    const containerSteps = ['Building immutable container image','Running image and dependency checks',`Placing ${state.containers} replicas across ${providerLabel}`,'Waiting for readiness and health checks','Activating global traffic endpoint','Deployment healthy — rollback revision saved'];
+    logText.forEach((node,index) => node.textContent = containerSteps[index]);
+  }
 
   document.getElementById('deploy-progress').style.display = 'block';
 
@@ -1222,16 +1456,20 @@ function startDeploy() {
         if (state.appType === 'backend' || state.appType === 'database' || state.appType === 'worker' || state.appType === 'ml') {
             domainStr = 'akash.network/api';
         }
-        const fullUrl = `https://${appName}.${domainStr}`;
+        const fullUrl = state.appType === 'token'
+          ? (state.chainFamily === 'solana' ? 'Mint: 7yHk…SGrid' : 'Contract: 0x71a…9F2C')
+          : `https://${appName}.${domainStr}`;
+        const resultLabel = state.appType === 'token' ? 'Token Deployed Successfully' : 'Deployed Successfully';
+        const resultAction = state.appType === 'token' ? 'View on explorer ↗' : 'Visit App ↗';
         
         document.getElementById('deploy-actions').innerHTML = `
           <div style="display:flex; flex-direction:column; gap:12px; width:100%;">
             <div style="background:#F0FDF4; border:1px solid #BBF7D0; padding:16px; border-radius:8px; display:flex; align-items:center; justify-content:space-between;">
                 <div>
-                  <div style="font-size:12px; font-weight:700; color:#15803D; margin-bottom:4px; text-transform:uppercase; letter-spacing:0.5px;">Deployed Successfully</div>
+                  <div style="font-size:12px; font-weight:700; color:#15803D; margin-bottom:4px; text-transform:uppercase; letter-spacing:0.5px;">${resultLabel}</div>
                   <a href="javascript:void(0)" style="font-size:14px; font-weight:600; color:#16A34A; text-decoration:none;">${fullUrl}</a>
                 </div>
-                <button class="btn btn-primary" style="background:#22C55E; padding:6px 12px; font-size:13px;">Visit App ↗</button>
+                <button class="btn btn-primary" style="background:#22C55E; padding:6px 12px; font-size:13px;">${resultAction}</button>
             </div>
             <div style="display:flex; align-items:center; justify-content:flex-end; gap:12px; margin-top:8px;">
                 <span style="font-size:13px;color:#777;font-weight:500;">Your app is now live.</span>
@@ -1250,6 +1488,116 @@ function showToast(msg) {
   t.className = 'toast'; t.textContent = msg;
   document.getElementById('toasts').appendChild(t);
   setTimeout(() => t.remove(), 3500);
+}
+
+// Cinematic node journey: the viewport follows a signal from provider to provider.
+const journeyCanvas = document.getElementById('network-journey-canvas');
+const journeyProvider = document.getElementById('journey-provider');
+const journeyMeta = document.getElementById('journey-meta');
+const reduceMapMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+if (journeyCanvas) {
+  const ctx = journeyCanvas.getContext('2d');
+  const providers = [
+    { x:0, y:0, name:'SoverGrid', meta:'Routing workload' },
+    { x:260, y:-80, name:'Akash', meta:'Compute · eu-west' },
+    { x:430, y:150, name:'Spheron', meta:'Edge · global CDN' },
+    { x:690, y:150, name:'4EVERLAND', meta:'IPFS · Singapore' },
+    { x:690, y:-130, name:'io.net', meta:'GPU · US west' },
+    { x:960, y:-250, name:'Kwil', meta:'Database · distributed SQL' },
+    { x:1180, y:-60, name:'Tableland', meta:'Database · on-chain' },
+    { x:1060, y:220, name:'Lit Protocol', meta:'Security · key network' },
+    { x:1340, y:340, name:'Arweave', meta:'Storage · permanent' }
+  ];
+  let width = 0, height = 0, dpr = 1;
+  let segment = 0, segmentStart = performance.now();
+  let camera = { x:0, y:0 };
+  const travelTime = 2400;
+  const pauseTime = 520;
+
+  function resizeJourney() {
+    const rect = journeyCanvas.getBoundingClientRect();
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    width = rect.width; height = rect.height;
+    journeyCanvas.width = Math.round(width * dpr);
+    journeyCanvas.height = Math.round(height * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+
+  function ease(t) { return t < .5 ? 2*t*t : 1 - Math.pow(-2*t+2, 2)/2; }
+
+  function drawJourney(now) {
+    const from = providers[segment];
+    const to = providers[(segment + 1) % providers.length];
+    const elapsed = now - segmentStart;
+    const raw = Math.min(1, elapsed / travelTime);
+    const progress = ease(raw);
+    const signal = { x:from.x+(to.x-from.x)*progress, y:from.y+(to.y-from.y)*progress };
+    const dx = to.x-from.x, dy = to.y-from.y;
+    const len = Math.hypot(dx,dy) || 1;
+    const desired = { x:signal.x+(dx/len)*70, y:signal.y+(dy/len)*70 };
+    camera.x += (desired.x-camera.x)*.045;
+    camera.y += (desired.y-camera.y)*.045;
+
+    ctx.clearRect(0,0,width,height);
+    ctx.save();
+    ctx.translate(width/2-camera.x, height/2-camera.y);
+
+    // Moving technical grid gives the camera motion a readable frame of reference.
+    ctx.strokeStyle = 'rgba(124,58,237,.055)'; ctx.lineWidth = 1;
+    const grid = 44;
+    for (let x=Math.floor((camera.x-width)/grid)*grid; x<camera.x+width; x+=grid) { ctx.beginPath(); ctx.moveTo(x,camera.y-height); ctx.lineTo(x,camera.y+height); ctx.stroke(); }
+    for (let y=Math.floor((camera.y-height)/grid)*grid; y<camera.y+height; y+=grid) { ctx.beginPath(); ctx.moveTo(camera.x-width,y); ctx.lineTo(camera.x+width,y); ctx.stroke(); }
+
+    // Draw completed routes and the route currently being traversed.
+    ctx.lineCap='round'; ctx.lineJoin='round';
+    for (let i=0; i<providers.length-1; i++) {
+      const a=providers[i], b=providers[i+1];
+      const completed = i < segment;
+      if (!completed && i !== segment) continue;
+      ctx.beginPath(); ctx.moveTo(a.x,a.y);
+      const endX = i===segment ? signal.x : b.x;
+      const endY = i===segment ? signal.y : b.y;
+      ctx.lineTo(endX,endY);
+      ctx.strokeStyle = completed ? 'rgba(124,58,237,.24)' : '#7C3AED';
+      ctx.lineWidth = completed ? 2 : 3;
+      ctx.stroke();
+    }
+
+    // Arrived nodes remain behind; the destination pops when the signal reaches it.
+    providers.forEach((node,i) => {
+      if (i > segment + (raw===1 ? 1 : 0)) return;
+      const isArrival = i===segment+1 && raw===1;
+      const pop = isArrival ? Math.max(0,Math.min(1,(elapsed-travelTime)/260)) : 1;
+      const scale = 1 + Math.sin(Math.min(1,pop)*Math.PI)*.65;
+      ctx.beginPath(); ctx.arc(node.x,node.y,18*scale,0,Math.PI*2); ctx.fillStyle='rgba(124,58,237,.09)'; ctx.fill();
+      ctx.beginPath(); ctx.arc(node.x,node.y,7*scale,0,Math.PI*2); ctx.fillStyle=i===0?'#111':'#7C3AED'; ctx.fill();
+      ctx.strokeStyle='#fff'; ctx.lineWidth=3; ctx.stroke();
+      ctx.font='700 11px Inter, sans-serif'; ctx.fillStyle='#111'; ctx.fillText(node.name,node.x+14,node.y-13);
+    });
+
+    // The tracked signal has a glow and short directional trail.
+    const trailX = signal.x-(dx/len)*28, trailY = signal.y-(dy/len)*28;
+    const glow=ctx.createLinearGradient(trailX,trailY,signal.x,signal.y);
+    glow.addColorStop(0,'rgba(124,58,237,0)'); glow.addColorStop(1,'rgba(124,58,237,.8)');
+    ctx.beginPath(); ctx.moveTo(trailX,trailY); ctx.lineTo(signal.x,signal.y); ctx.strokeStyle=glow; ctx.lineWidth=8; ctx.stroke();
+    ctx.beginPath(); ctx.arc(signal.x,signal.y,6,0,Math.PI*2); ctx.fillStyle='#fff'; ctx.fill(); ctx.strokeStyle='#7C3AED'; ctx.lineWidth=3; ctx.stroke();
+    ctx.restore();
+
+    if (raw===1 && elapsed >= travelTime+pauseTime) {
+      segment++;
+      if (segment >= providers.length-1) { segment=0; camera={x:0,y:0}; }
+      segmentStart=now;
+      const next=providers[(segment+1)%providers.length];
+      journeyProvider.textContent=next.name; journeyMeta.textContent=next.meta;
+    }
+    if (!reduceMapMotion) requestAnimationFrame(drawJourney);
+  }
+
+  resizeJourney();
+  window.addEventListener('resize', resizeJourney);
+  journeyProvider.textContent=providers[1].name; journeyMeta.textContent=providers[1].meta;
+  drawJourney(performance.now());
 }
 </script>
 <script>window.SG_ACTIVE_PAGE = localStorage.getItem('sg_mode') === 'developer' ? 'deployments-dev' : 'myapps';</script>
