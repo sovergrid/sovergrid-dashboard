@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 180" role="img" aria-labelledby="title desc">
+  <title id="title">SoverGrid Resilient Grid logo</title><desc id="desc">A modular grid with redundant connected paths.</desc>
+  <rect width="640" height="180" rx="24" fill="#111111"/>
+  <g transform="translate(28 18)">
+    <rect width="144" height="144" rx="32" fill="#171717" stroke="#333333"/>
+    <g fill="none" stroke="#7C3AED" stroke-width="5"><path d="M38 38H106V72H38V106H106"/><path d="M72 38V106" opacity=".45"/></g>
+    <g fill="#111111" stroke="#FFFFFF" stroke-width="4"><rect x="28" y="28" width="20" height="20" rx="6"/><rect x="96" y="28" width="20" height="20" rx="6"/><rect x="62" y="62" width="20" height="20" rx="6"/><rect x="28" y="96" width="20" height="20" rx="6"/><rect x="96" y="96" width="20" height="20" rx="6"/></g>
+    <rect x="65" y="65" width="14" height="14" rx="4" fill="#7C3AED"/>
+  </g>
+  <g transform="translate(205 55)"><text y="45" fill="#FFFFFF" font-family="Inter,Arial,sans-serif" font-size="54" font-weight="750" letter-spacing="-2.4">sovergrid</text><text x="2" y="75" fill="#AAAAAA" font-family="Inter,Arial,sans-serif" font-size="13" font-weight="600" letter-spacing="2.2">RESILIENT BY DESIGN</text></g>
+</svg>

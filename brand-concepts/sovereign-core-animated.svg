@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180" role="img" aria-labelledby="title desc">
+<title id="title">Animated SoverGrid Sovereign Core</title><desc id="desc">Four independent provider nodes repeatedly send deployment signals into a central core containing the SoverGrid S.</desc>
+<style>
+.node{transform-box:fill-box;transform-origin:center;animation:nodeLoop 6s cubic-bezier(.2,.9,.3,1.3) infinite}.n1{animation-delay:0s}.n2{animation-delay:.18s}.n3{animation-delay:.36s}.n4{animation-delay:.54s}.link{fill:none;stroke:#7C3AED;stroke-width:4;stroke-linecap:round;stroke-dasharray:70;animation:linkLoop 6s ease-out infinite}.l2{animation-delay:.18s}.l3{animation-delay:.36s}.l4{animation-delay:.54s}.core{transform-box:fill-box;transform-origin:center;animation:coreLoop 6s cubic-bezier(.2,.9,.25,1.2) infinite}.s-route{fill:none;stroke:#fff;stroke-width:4;stroke-linecap:round;stroke-dasharray:90;animation:sLoop 6s ease-in-out infinite}.pulse{fill:none;stroke:#7C3AED;stroke-width:2;transform-box:fill-box;transform-origin:center;animation:pulseLoop 6s ease-out infinite}.packet{fill:#fff;stroke:#7C3AED;stroke-width:2;filter:drop-shadow(0 0 4px #7C3AED)}
+@keyframes nodeLoop{0%,4%{transform:scale(0);opacity:0}10%,82%{transform:scale(1);opacity:1}91%,100%{transform:scale(0);opacity:0}}@keyframes linkLoop{0%,12%{stroke-dashoffset:70;opacity:0}20%,82%{stroke-dashoffset:0;opacity:1}92%,100%{opacity:0}}@keyframes coreLoop{0%,24%{transform:scale(0);opacity:0}33%,83%{transform:scale(1);opacity:1}92%,100%{transform:scale(0);opacity:0}}@keyframes sLoop{0%,34%{stroke-dashoffset:90;opacity:0}43%,83%{stroke-dashoffset:0;opacity:1}92%,100%{stroke-dashoffset:-90;opacity:0}}@keyframes pulseLoop{0%,46%{opacity:0;transform:scale(.5)}53%{opacity:.7}72%{opacity:0;transform:scale(1.9)}100%{opacity:0}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important}.node,.core{transform:scale(1)}.link,.s-route{stroke-dashoffset:0}}
+</style>
+<rect width="180" height="180" rx="40" fill="#F8F7F4"/>
+<path class="link l1" d="M42 42L90 90"/><path class="link l2" d="M138 42L90 90"/><path class="link l3" d="M138 138L90 90"/><path class="link l4" d="M42 138L90 90"/>
+<g fill="#fff" stroke="#7C3AED" stroke-width="5"><circle class="node n1" cx="42" cy="42" r="11"/><circle class="node n2" cx="138" cy="42" r="11"/><circle class="node n3" cx="138" cy="138" r="11"/><circle class="node n4" cx="42" cy="138" r="11"/></g>
+<g class="core"><path d="M90 52L124 72V108L90 128L56 108V72Z" fill="#111"/><path d="M90 66L110 78V102L90 114L70 102V78Z" fill="#7C3AED"/><path class="s-route" d="M100 77C95 71 79 72 77 80C74 88 83 90 91 90C100 90 106 95 103 103C99 111 83 110 78 104"/></g>
+<circle class="pulse" cx="90" cy="90" r="30"/>
+<g>
+<circle class="packet" r="4"><animateMotion dur="6s" begin="1.2s" repeatCount="indefinite" path="M42 42L90 90" keyPoints="0;1;1" keyTimes="0;.2;1" calcMode="linear"/></circle>
+<circle class="packet" r="4"><animateMotion dur="6s" begin="1.4s" repeatCount="indefinite" path="M138 42L90 90" keyPoints="0;1;1" keyTimes="0;.2;1" calcMode="linear"/></circle>
+<circle class="packet" r="4"><animateMotion dur="6s" begin="1.6s" repeatCount="indefinite" path="M138 138L90 90" keyPoints="0;1;1" keyTimes="0;.2;1" calcMode="linear"/></circle>
+<circle class="packet" r="4"><animateMotion dur="6s" begin="1.8s" repeatCount="indefinite" path="M42 138L90 90" keyPoints="0;1;1" keyTimes="0;.2;1" calcMode="linear"/></circle>
+</g>
+</svg>
