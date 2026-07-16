@@ -54,23 +54,114 @@
     </div>
     <div class="content">
       
-      <div class="card" style="margin-bottom:14px;">
+      <div class="card" style="margin-bottom:24px;">
         <div class="card-header">
-          <span class="card-title">Custom Domains</span>
-          <button class="btn btn-primary btn-sm" onclick="showToast('Domain management coming soon')">Add domain</button>
-        </div>
-        <div class="card-body">
-          <div style="background:#F8F7F4;border:1px solid #EBEBEB;border-radius:10px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;">
-            <div>
-              <div style="font-size:13.5px;font-weight:700;">sovergrid.network</div>
-              <div style="font-size:12.5px;color:#AAAAAA;margin-top:3px;">Pointing to invoice-sentinel-api &nbsp;·&nbsp; TLS active</div>
-            </div>
-            <div style="display:flex;gap:8px;align-items:center;">
-              <span style="background:#F0FDF4;color:#15803D;font-size:12px;font-weight:600;border-radius:4px;padding:2px 8px;">● Active</span>
-              <button class="btn btn-ghost btn-sm">Manage</button>
-            </div>
+          <div>
+            <span class="card-title">Custom Domains</span>
+            <div style="font-size:13px; color:var(--muted); margin-top:4px;">TLS certificates are provisioned and renewed automatically.</div>
           </div>
-          <p style="font-size:13px;color:#AAAAAA;margin-top:14px;">Add a CNAME record pointing <code style="font-size:12px;background:#F8F7F4;padding:1px 5px;border-radius:3px;">your-domain.com</code> to <code style="font-size:12px;background:#F8F7F4;padding:1px 5px;border-radius:3px;">app.sovergrid.network</code> and we handle TLS automatically.</p>
+          <div style="display:flex; gap:8px;">
+            <button class="btn btn-ghost btn-sm" onclick="showToast('Domain search coming soon')">Buy domain</button>
+            <button class="btn btn-primary btn-sm" onclick="showToast('Connect domain coming soon')">Connect domain</button>
+          </div>
+        </div>
+        <div class="card-body" style="padding:0;">
+          <table style="width:100%; text-align:left; border-collapse:collapse; font-size:13px;">
+            <thead>
+              <tr style="border-bottom:1px solid var(--line); color:var(--muted);">
+                <th style="padding:12px 16px; font-weight:500;">Domain</th>
+                <th style="padding:12px 16px; font-weight:500;">Deployment</th>
+                <th style="padding:12px 16px; font-weight:500;">TLS</th>
+                <th style="padding:12px 16px; font-weight:500;">Status</th>
+                <th style="padding:12px 16px; font-weight:500; text-align:right;">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:14px 16px; font-weight:600;">sovergrid.network</td>
+                <td style="padding:14px 16px; color:var(--muted);">invoice-sentinel-api</td>
+                <td style="padding:14px 16px;"><span style="color:#15803D; font-weight:500;">✓ Active</span></td>
+                <td style="padding:14px 16px;"><span style="background:#F0FDF4; color:#15803D; font-size:12px; font-weight:600; border-radius:4px; padding:3px 8px;">● Active</span></td>
+                <td style="padding:14px 16px; text-align:right;"><button class="btn btn-ghost btn-sm">Manage</button></td>
+              </tr>
+              <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:14px 16px; font-weight:600;">api.myapp.com</td>
+                <td style="padding:14px 16px; color:var(--muted);">auth-service</td>
+                <td style="padding:14px 16px;"><span style="color:#15803D; font-weight:500;">✓ Active</span></td>
+                <td style="padding:14px 16px;"><span style="background:#F0FDF4; color:#15803D; font-size:12px; font-weight:600; border-radius:4px; padding:3px 8px;">● Active</span></td>
+                <td style="padding:14px 16px; text-align:right;"><button class="btn btn-ghost btn-sm">Manage</button></td>
+              </tr>
+              <tr>
+                <td style="padding:14px 16px; font-weight:600;">staging.myapp.com</td>
+                <td style="padding:14px 16px; color:var(--muted);">admin-dashboard</td>
+                <td style="padding:14px 16px;"><span style="color:#15803D; font-weight:500;">✓ Active</span></td>
+                <td style="padding:14px 16px;"><span style="background:#FEF9C3; color:#A16207; font-size:12px; font-weight:600; border-radius:4px; padding:3px 8px;">● Pending</span></td>
+                <td style="padding:14px 16px; text-align:right;"><button class="btn btn-ghost btn-sm">Manage</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:24px;">
+        <div class="card-header">
+          <div>
+            <span class="card-title">DNS Records</span>
+            <div style="font-size:13px; color:var(--muted); margin-top:4px;">Manage records for domains registered with SoverGrid or using our nameservers.</div>
+          </div>
+          <button class="btn btn-ghost btn-sm">Add record</button>
+        </div>
+        <div class="card-body" style="padding:0;">
+          <table style="width:100%; text-align:left; border-collapse:collapse; font-size:13px;">
+            <thead>
+              <tr style="border-bottom:1px solid var(--line); color:var(--muted);">
+                <th style="padding:12px 16px; font-weight:500;">Type</th>
+                <th style="padding:12px 16px; font-weight:500;">Name</th>
+                <th style="padding:12px 16px; font-weight:500;">Value</th>
+                <th style="padding:12px 16px; font-weight:500; text-align:right;">TTL</th>
+              </tr>
+            </thead>
+            <tbody style="font-family:'JetBrains Mono', monospace; font-size:12px;">
+              <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:14px 16px;"><span style="background:#F3E8FF; color:#7C3AED; padding:2px 6px; border-radius:4px; font-weight:600;">CNAME</span></td>
+                <td style="padding:14px 16px;">sovergrid.network</td>
+                <td style="padding:14px 16px; color:var(--muted);">app.sovergrid.network</td>
+                <td style="padding:14px 16px; color:var(--muted); text-align:right;">300s</td>
+              </tr>
+              <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:14px 16px;"><span style="background:#F3E8FF; color:#7C3AED; padding:2px 6px; border-radius:4px; font-weight:600;">CNAME</span></td>
+                <td style="padding:14px 16px;">api.myapp.com</td>
+                <td style="padding:14px 16px; color:var(--muted);">app.sovergrid.network</td>
+                <td style="padding:14px 16px; color:var(--muted); text-align:right;">300s</td>
+              </tr>
+              <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:14px 16px;"><span style="background:#E0F2FE; color:#0284C7; padding:2px 6px; border-radius:4px; font-weight:600;">A</span></td>
+                <td style="padding:14px 16px;">staging.myapp.com</td>
+                <td style="padding:14px 16px; color:var(--muted);">45.77.112.88</td>
+                <td style="padding:14px 16px; color:var(--muted); text-align:right;">60s</td>
+              </tr>
+              <tr>
+                <td style="padding:14px 16px;"><span style="background:#DCFCE7; color:#16A34A; padding:2px 6px; border-radius:4px; font-weight:600;">TXT</span></td>
+                <td style="padding:14px 16px;">_acme-challenge.sovergrid.network</td>
+                <td style="padding:14px 16px; color:var(--muted);">aX9mY2z..verified</td>
+                <td style="padding:14px 16px; color:var(--muted); text-align:right;">60s</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card" style="background:#F8F7F4; border-color:var(--line);">
+        <div class="card-body">
+          <div style="font-weight:600; margin-bottom:8px;">Connecting an external domain</div>
+          <p style="font-size:13px; color:var(--muted); margin-bottom:14px;">If you registered your domain elsewhere, point a <code style="background:#EAE9E5; padding:2px 6px; border-radius:4px;">CNAME</code> record from your domain to <code style="background:#EAE9E5; padding:2px 6px; border-radius:4px;">app.sovergrid.network</code>. TLS is provisioned automatically via Let's Encrypt.</p>
+          <div style="background:#111111; color:#F8F7F4; padding:16px; border-radius:8px; font-family:'JetBrains Mono', monospace; font-size:12px; line-height:1.6;">
+            <div style="color:#AAAAAA;"># DNS provider config example (Cloudflare, GoDaddy, etc.)</div>
+            <div><span style="color:#AAAAAA;">Type:</span>  CNAME</div>
+            <div><span style="color:#AAAAAA;">Name:</span>  your-subdomain</div>
+            <div><span style="color:#AAAAAA;">Value:</span> app.sovergrid.network</div>
+            <div><span style="color:#AAAAAA;">TTL:</span>   Auto</div>
+          </div>
         </div>
       </div>
     </div>
