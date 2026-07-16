@@ -109,16 +109,12 @@ window.toggleSidebar = function () {
   // ── Developer nav ─────────────────────────────────────────────────────────
   if (mode === 'developer') {
     nav.innerHTML = `
-      ${section('Compute')}
       ${navItem('developer.html',  'myapps',      'Deployments',     'deployments-dev')}
       ${navItem('containers.html', 'containers',  'Container Groups', 'containers')}
-      ${section('Networking')}
       ${navItem('dns.html',        'dns',         'Domains & DNS',   'dns')}
       ${navItem('monitoring.html', 'monitoring',  'Monitoring',      'monitoring')}
-      ${section('Developer')}
       ${navItem('apikeys.html',    'apikeys',     'API Keys',        'apikeys')}
       ${navItem('cli-setup.html',  'cli',         'CLI Setup',       'cli')}
-      ${section('Account')}
       ${navItem('billing.html',    'billing',     'Billing',         'billing')}
       ${navItem('settings.html', 'settings', 'Settings',  'settings')}
     `;
