@@ -592,8 +592,8 @@
 <!-- Three raw numbers — no boxes, no cards -->
 <div class="numbers-strip">
   <div class="number-cell">
-    <div class="number-val">$7</div>
-    <div class="number-label">Starting monthly cost<br>for a 3-instance deployment</div>
+    <div class="number-val">$5</div>
+    <div class="number-label">Flat SoverGrid platform fee.<br>Raw provider costs are passed through.</div>
   </div>
   <div class="number-cell">
     <div class="number-val">3×</div>
@@ -830,7 +830,6 @@
 <script>
 /* Product-led hero animation: cycles through real SoverGrid workload types. */
 const demoOptions = [...document.querySelectorAll('.demo-option')];
-const demoSteps = [...document.querySelectorAll('.demo-step')];
 const demoName = document.getElementById('demo-app-name');
 const demoStatus = document.getElementById('demo-status');
 const demoStatusText = document.getElementById('demo-status-text');
@@ -841,11 +840,8 @@ function updateDemo() {
   const option = demoOptions[demoIndex];
   demoOptions.forEach(item => item.classList.toggle('selected', item === option));
   demoName.textContent = option.dataset.app;
-  demoStatusText.textContent = `${option.dataset.name} ready to deploy`;
-  demoSteps.forEach((step, index) => {
-    step.classList.toggle('active', index === demoIndex % demoSteps.length);
-    step.classList.toggle('done', index < demoIndex % demoSteps.length);
-  });
+  demoStatusText.textContent = `${option.dataset.name} selected`;
+  
   demoStatus.classList.add('show');
   window.setTimeout(() => demoStatus.classList.remove('show'), 1800);
   demoIndex = (demoIndex + 1) % demoOptions.length;
