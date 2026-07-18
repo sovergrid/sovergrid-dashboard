@@ -195,7 +195,10 @@
     .demo-step.active { color:#111; font-weight:700; }
     .demo-step.active .demo-step-num { background:#7C3AED; border-color:#7C3AED; color:#fff; }
     .demo-step.done .demo-step-num { background:#22C55E; border-color:#22C55E; color:#fff; }
-    .demo-body { padding:18px; }
+    .demo-body { padding:18px; position:relative; min-height:220px; }
+    .demo-step-content { display:none; animation: fadeIn .3s ease; }
+    .demo-step-content.active { display:block; }
+    @keyframes fadeIn { from { opacity:0; transform:translateY(5px); } to { opacity:1; transform:translateY(0); } }
     .demo-question { font-size:11px; font-weight:700; margin-bottom:12px; }
     .demo-grid { display:grid; grid-template-columns:1fr 1fr; gap:9px; }
     .demo-option { min-height:72px; border:1.5px solid #E4E4E0; border-radius:9px; padding:11px; display:flex; align-items:center; gap:10px; transition:border-color .25s, background .25s, transform .25s; }
@@ -205,7 +208,7 @@
     .demo-option-icon svg { width:15px; height:15px; }
     .demo-option-name { display:block; font-size:10px; font-weight:700; }
     .demo-option-desc { display:block; font-size:8.5px; color:#888; margin-top:2px; }
-    .demo-footer { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-top:16px; }
+    .demo-footer { display:flex; align-items:center; justify-content:space-between; gap:12px; position:absolute; bottom:18px; left:18px; right:18px; }
     .demo-app-name { flex:1; background:#F8F7F4; border:1px solid #E4E4E0; border-radius:7px; padding:8px 10px; font:9px 'JetBrains Mono',monospace; color:#6B6B6B; }
     .demo-action { border:0; border-radius:7px; background:#7C3AED; color:#fff; padding:8px 12px; font-size:9px; font-weight:700; }
     .demo-status { position:absolute; right:18px; bottom:18px; display:flex; align-items:center; gap:8px; background:#111; color:#fff; border-radius:8px; padding:9px 12px; font-size:9px; font-weight:600; box-shadow:0 8px 24px rgba(0,0,0,.18); opacity:0; transform:translateY(8px); transition:opacity .25s, transform .25s; }
@@ -560,26 +563,83 @@
         <div class="demo-step"><span class="demo-step-num">5</span>Deploy</div>
       </div>
       <div class="demo-body">
-        <div class="demo-question">What are you deploying?</div>
-        <div class="demo-grid">
-          <div class="demo-option selected" data-name="Frontend" data-app="sovergrid-web">
-            <span class="demo-option-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></span>
-            <span><span class="demo-option-name">Frontend</span><span class="demo-option-desc">React, Vue, Next.js</span></span>
-          </div>
-          <div class="demo-option" data-name="Backend API" data-app="payments-api">
-            <span class="demo-option-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 6h8M8 10h8M8 14h4"/></svg></span>
-            <span><span class="demo-option-name">Backend API</span><span class="demo-option-desc">FastAPI, Express, Go</span></span>
-          </div>
-          <div class="demo-option" data-name="Full-Stack App" data-app="nexus-platform">
-            <span class="demo-option-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/></svg></span>
-            <span><span class="demo-option-name">Full-Stack App</span><span class="demo-option-desc">Frontend + backend</span></span>
-          </div>
-          <div class="demo-option" data-name="AI Workload" data-app="model-worker">
-            <span class="demo-option-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></span>
-            <span><span class="demo-option-name">AI Workload</span><span class="demo-option-desc">Distributed GPU compute</span></span>
+        <!-- Step 1: App Type -->
+        <div class="demo-step-content active" id="demo-content-0">
+          <div class="demo-question">What are you deploying?</div>
+          <div class="demo-grid">
+            <div class="demo-option selected" data-name="Frontend" data-app="sovergrid-web">
+              <span class="demo-option-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></span>
+              <span><span class="demo-option-name">Frontend</span><span class="demo-option-desc">React, Vue, Next.js</span></span>
+            </div>
+            <div class="demo-option" data-name="Backend API" data-app="payments-api">
+              <span class="demo-option-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 6h8M8 10h8M8 14h4"/></svg></span>
+              <span><span class="demo-option-name">Backend API</span><span class="demo-option-desc">FastAPI, Express, Go</span></span>
+            </div>
+            <div class="demo-option" data-name="Full-Stack App" data-app="nexus-platform">
+              <span class="demo-option-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/></svg></span>
+              <span><span class="demo-option-name">Full-Stack App</span><span class="demo-option-desc">Frontend + backend</span></span>
+            </div>
+            <div class="demo-option" data-name="AI Workload" data-app="model-worker">
+              <span class="demo-option-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></span>
+              <span><span class="demo-option-name">AI Workload</span><span class="demo-option-desc">Distributed GPU compute</span></span>
+            </div>
           </div>
         </div>
-        <div class="demo-footer">
+
+        <!-- Step 2: Source -->
+        <div class="demo-step-content" id="demo-content-1">
+          <div class="demo-question">Connect your source code</div>
+          <div style="display:flex; flex-direction:column; gap:9px;">
+            <div class="demo-option selected" style="min-height:50px;">
+              <span class="demo-option-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg></span>
+              <span><span class="demo-option-name">joel819/sovergrid-web</span><span class="demo-option-desc">main branch</span></span>
+            </div>
+            <div class="demo-option" style="min-height:50px;">
+              <span class="demo-option-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><rect x="2" y="3" width="20" height="14" rx="2"></rect><path d="M8 21h8M12 17v4"></path></svg></span>
+              <span><span class="demo-option-name">Docker Image</span><span class="demo-option-desc">joel819/sovergrid-web:latest</span></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 3: Provider -->
+        <div class="demo-step-content" id="demo-content-2">
+          <div class="demo-question">Select decentralised provider</div>
+          <div class="demo-grid">
+            <div class="demo-option selected" style="min-height:60px;">
+              <span class="demo-option-icon" style="background:#EF4444; color:#fff; font-weight:800; border-radius:14px;">A</span>
+              <span><span class="demo-option-name">Akash Network</span><span class="demo-option-desc">$2.16 / month</span></span>
+            </div>
+            <div class="demo-option" style="min-height:60px;">
+              <span class="demo-option-icon" style="background:#10B981; color:#fff; font-weight:800; border-radius:14px;">S</span>
+              <span><span class="demo-option-name">Spheron Edge</span><span class="demo-option-desc">$3.00 / month</span></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 4: Configure -->
+        <div class="demo-step-content" id="demo-content-3">
+          <div class="demo-question">Configure Resources</div>
+          <div style="display:flex; flex-direction:column; gap:9px;">
+             <div style="font-size:10px; font-weight:700;">Replicas (Containers)</div>
+             <div style="background:#fff; border:1.5px solid #E4E4E0; padding:10px 12px; border-radius:7px; font-size:10px; font-family:'JetBrains Mono',monospace;">3</div>
+             <div style="font-size:10px; font-weight:700; margin-top:2px;">Build Command</div>
+             <div style="background:#fff; border:1.5px solid #E4E4E0; padding:10px 12px; border-radius:7px; font-size:10px; font-family:'JetBrains Mono',monospace;">npm run build</div>
+          </div>
+        </div>
+
+        <!-- Step 5: Deploying -->
+        <div class="demo-step-content" id="demo-content-4">
+          <div class="demo-question">Deploying to Akash...</div>
+          <div style="background:#1C1C1F; color:#fff; padding:16px; border-radius:8px; font-family:'JetBrains Mono',monospace; font-size:9.5px; line-height:1.7; height:120px; border:1px solid rgba(255,255,255,0.08);">
+             <div id="deploy-log-1" style="color:#888; display:none;">[1/3] Building container image...</div>
+             <div id="deploy-log-2" style="color:#888; display:none;">[2/3] Bidding on Akash network...</div>
+             <div id="deploy-log-3" style="color:#22C55E; display:none;">[3/3] Deployment successful!</div>
+             <div id="deploy-log-4" style="margin-top:12px; color:#7C3AED; font-weight:700; display:none;">https://sovergrid-web.akash.network</div>
+          </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="demo-footer" id="demo-footer">
           <div class="demo-app-name" id="demo-app-name">sovergrid-web</div>
           <span class="demo-action">Continue →</span>
         </div>
@@ -828,27 +888,74 @@
 </footer>
 
 <script>
-/* Product-led hero animation: cycles through real SoverGrid workload types. */
-const demoOptions = [...document.querySelectorAll('.demo-option')];
-const demoName = document.getElementById('demo-app-name');
+/* Product-led hero animation: cycles through the full deployment workflow steps. */
+const demoSteps = [...document.querySelectorAll('.demo-step')];
+const demoContents = [
+  document.getElementById('demo-content-0'),
+  document.getElementById('demo-content-1'),
+  document.getElementById('demo-content-2'),
+  document.getElementById('demo-content-3'),
+  document.getElementById('demo-content-4')
+];
+const demoFooter = document.getElementById('demo-footer');
 const demoStatus = document.getElementById('demo-status');
 const demoStatusText = document.getElementById('demo-status-text');
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-let demoIndex = 0;
 
-function updateDemo() {
-  const option = demoOptions[demoIndex];
-  demoOptions.forEach(item => item.classList.toggle('selected', item === option));
-  demoName.textContent = option.dataset.app;
-  demoStatusText.textContent = `${option.dataset.name} selected`;
-  
-  demoStatus.classList.add('show');
-  window.setTimeout(() => demoStatus.classList.remove('show'), 1800);
-  demoIndex = (demoIndex + 1) % demoOptions.length;
+const log1 = document.getElementById('deploy-log-1');
+const log2 = document.getElementById('deploy-log-2');
+const log3 = document.getElementById('deploy-log-3');
+const log4 = document.getElementById('deploy-log-4');
+
+let currentStep = 0;
+
+function runDeploySequence() {
+  log1.style.display = 'block';
+  setTimeout(() => { log2.style.display = 'block'; }, 800);
+  setTimeout(() => { 
+    log3.style.display = 'block'; 
+    demoStatusText.textContent = "Successfully deployed!"; 
+    demoStatus.classList.add('show'); 
+  }, 1600);
+  setTimeout(() => { log4.style.display = 'block'; }, 2000);
+  setTimeout(() => { 
+     demoStatus.classList.remove('show');
+     setTimeout(() => {
+       log1.style.display = 'none';
+       log2.style.display = 'none';
+       log3.style.display = 'none';
+       log4.style.display = 'none';
+       nextStep(); 
+     }, 400);
+  }, 4500);
 }
 
-updateDemo();
-if (!reduceMotion) window.setInterval(updateDemo, 2800);
+function nextStep() {
+  demoContents.forEach(c => c.classList.remove('active'));
+  
+  currentStep = (currentStep + 1) % 5;
+  
+  demoSteps.forEach((step, index) => {
+    step.classList.toggle('active', index === currentStep);
+    step.classList.toggle('done', index < currentStep);
+  });
+  
+  demoContents[currentStep].classList.add('active');
+  
+  if (currentStep === 4) {
+    demoFooter.style.display = 'none';
+    runDeploySequence();
+  } else {
+    demoFooter.style.display = 'flex';
+    if (!reduceMotion) {
+      setTimeout(nextStep, 2500);
+    }
+  }
+}
+
+if (!reduceMotion) {
+  setTimeout(nextStep, 2500);
+}
 </script>
 </body>
 </html>
