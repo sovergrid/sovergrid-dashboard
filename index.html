@@ -195,7 +195,7 @@
     .demo-step.active { color:#111; font-weight:700; }
     .demo-step.active .demo-step-num { background:#7C3AED; border-color:#7C3AED; color:#fff; }
     .demo-step.done .demo-step-num { background:#22C55E; border-color:#22C55E; color:#fff; }
-    .demo-body { padding:18px; position:relative; min-height:220px; }
+    .demo-body { padding:18px; display:flex; flex-direction:column; min-height:270px; }
     .demo-step-content { display:none; animation: fadeIn .3s ease; }
     .demo-step-content.active { display:block; }
     @keyframes fadeIn { from { opacity:0; transform:translateY(5px); } to { opacity:1; transform:translateY(0); } }
@@ -208,7 +208,7 @@
     .demo-option-icon svg { width:15px; height:15px; }
     .demo-option-name { display:block; font-size:10px; font-weight:700; }
     .demo-option-desc { display:block; font-size:8.5px; color:#888; margin-top:2px; }
-    .demo-footer { display:flex; align-items:center; justify-content:space-between; gap:12px; position:absolute; bottom:18px; left:18px; right:18px; }
+    .demo-footer { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-top:auto; padding-top:16px; }
     .demo-app-name { flex:1; background:#F8F7F4; border:1px solid #E4E4E0; border-radius:7px; padding:8px 10px; font:9px 'JetBrains Mono',monospace; color:#6B6B6B; }
     .demo-action { border:0; border-radius:7px; background:#7C3AED; color:#fff; padding:8px 12px; font-size:9px; font-weight:700; }
     .demo-status { position:absolute; right:18px; bottom:18px; display:flex; align-items:center; gap:8px; background:#111; color:#fff; border-radius:8px; padding:9px 12px; font-size:9px; font-weight:600; box-shadow:0 8px 24px rgba(0,0,0,.18); opacity:0; transform:translateY(8px); transition:opacity .25s, transform .25s; }
@@ -592,11 +592,11 @@
           <div style="display:flex; flex-direction:column; gap:9px;">
             <div class="demo-option selected" style="min-height:50px;">
               <span class="demo-option-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg></span>
-              <span><span class="demo-option-name">joel819/sovergrid-web</span><span class="demo-option-desc">main branch</span></span>
+              <span><span class="demo-option-name">acme-corp/sovergrid-web</span><span class="demo-option-desc">main branch</span></span>
             </div>
             <div class="demo-option" style="min-height:50px;">
               <span class="demo-option-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><rect x="2" y="3" width="20" height="14" rx="2"></rect><path d="M8 21h8M12 17v4"></path></svg></span>
-              <span><span class="demo-option-name">Docker Image</span><span class="demo-option-desc">joel819/sovergrid-web:latest</span></span>
+              <span><span class="demo-option-name">Docker Image</span><span class="demo-option-desc">acme-corp/sovergrid-web:latest</span></span>
             </div>
           </div>
         </div>
@@ -606,11 +606,11 @@
           <div class="demo-question">Select decentralised provider</div>
           <div class="demo-grid">
             <div class="demo-option selected" style="min-height:60px;">
-              <span class="demo-option-icon" style="background:#EF4444; color:#fff; font-weight:800; border-radius:14px;">A</span>
+              <span class="demo-option-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg></span>
               <span><span class="demo-option-name">Akash Network</span><span class="demo-option-desc">$2.16 / month</span></span>
             </div>
             <div class="demo-option" style="min-height:60px;">
-              <span class="demo-option-icon" style="background:#10B981; color:#fff; font-weight:800; border-radius:14px;">S</span>
+              <span class="demo-option-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/><path d="M2 12h20"/></svg></span>
               <span><span class="demo-option-name">Spheron Edge</span><span class="demo-option-desc">$3.00 / month</span></span>
             </div>
           </div>
